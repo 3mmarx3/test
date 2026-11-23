@@ -6,10 +6,8 @@
 <title>Wander — Choose your destination</title>
 <meta name="theme-color" content="#2a2f38">
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Fallback fonts (used only if Safira March is missing) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
-  /* Put your font file in a "fonts" folder next to index.html (names are case-sensitive on GitHub Pages) */
   @font-face{
     font-family:"Safira March Personal Use Only";
     src:local("Safira March Personal Use Only"),local("Safira March"),
@@ -47,13 +45,55 @@
   .in{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
   @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
   :focus-visible{outline:2px solid #fff;outline-offset:3px}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.in{opacity:1}}
+
+  /* ---------- Profile popup ---------- */
+  .pf-bg{position:absolute;inset:0;z-index:30;background:#12151acc;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+    opacity:0;pointer-events:none;transition:opacity .45s ease,backdrop-filter .45s ease,-webkit-backdrop-filter .45s ease}
+  .pf-bg.open{opacity:1;pointer-events:auto;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .pf-card{position:absolute;left:50%;top:50%;z-index:31;width:min(88vw,360px);padding:92px 26px 26px;text-align:center;
+    border-radius:34px;border:1px solid #ffffff2e;
+    background:linear-gradient(160deg,#3b424f 0%,#2a2f38 60%,#242830 100%);
+    box-shadow:0 40px 90px -20px #000c,inset 0 1px 0 #ffffff26;
+    transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,0px))) scale(.08);
+    opacity:0;pointer-events:none;border-radius:999px;
+    transition:transform .65s cubic-bezier(.2,.95,.25,1.08),opacity .3s ease,border-radius .65s ease}
+  .pf-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;border-radius:34px}
+  .pf-photo{position:absolute;left:50%;top:-62px;width:132px;height:164px;margin-left:-66px;
+    border-radius:66px 66px 26px 26px;padding:5px;
+    background:conic-gradient(from 200deg,#f5c96b,#ea7c8c,#7fb4ff,#f5c96b);
+    box-shadow:0 18px 40px -10px #ea7c8c88;cursor:pointer;transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+  .pf-photo:hover{transform:rotate(-3deg) scale(1.04)}
+  .pf-inner{width:100%;height:100%;border-radius:61px 61px 21px 21px;overflow:hidden;background:#2a2f38;position:relative;
+    display:grid;place-items:center;font-family:var(--gl-font-city);font-size:56px;color:#fff;
+    background:linear-gradient(135deg,#f5c96b,#ea7c8c)}
+  .pf-inner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .pf-cam{position:absolute;right:-6px;bottom:10px;width:34px;height:34px;border-radius:50%;background:#fff;color:#222;display:grid;place-items:center;
+    box-shadow:0 6px 14px #0006}
+  .pf-name{margin:0;font-family:var(--gl-font-city);font-size:34px;line-height:1;letter-spacing:-.01em;color:#fff}
+  .pf-handle{margin:8px 0 0;font-size:13px;color:#ffffff99}
+  .pf-bio{margin:16px auto 0;max-width:30ch;font-size:15px;line-height:1.55;color:#e6e3dd}
+  .pf-actions{display:flex;gap:10px;margin-top:22px}
+  .pf-btn{flex:1;height:48px;border-radius:999px;border:0;font:600 14px var(--gl-font-sans);cursor:pointer;
+    transition:transform .2s ease,background .2s ease}
+  .pf-btn:active{transform:scale(.96)}
+  .pf-primary{background:#fff;color:#1b1f26}
+  .pf-ghost{background:#ffffff1f;color:#fff}
+  .pf-x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:0;background:#ffffff1f;color:#fff;display:grid;place-items:center;cursor:pointer}
+.pf-stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;border-radius:20px;background:#00000026;border:1px solid #ffffff1a;padding:12px 4px}
+  .pf-stat+.pf-stat{border-left:1px solid #ffffff1f}
+  .pf-stat b{display:block;font:600 20px var(--gl-font-sans);color:#fff;font-variant-numeric:tabular-nums}
+  .pf-stat span{font-size:12px;color:#ffffff99}
+  .pf-live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5bd68a;margin-right:6px;vertical-align:middle}
+  .st{opacity:0}
+  .pf-card.open .st{animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(.28s + var(--i)*.08s)}
+  .pf-card.open .pf-photo{animation:pop .8s cubic-bezier(.2,.9,.3,1.25) .15s both}
+  @keyframes pop{from{opacity:0;transform:translateY(30px) scale(.6)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.in,.st{opacity:1}}
 </style>
 </head>
 <body>
 <main id="app">
 
-  <!-- header (same as the design) -->
   <header class="absolute top-0 inset-x-0 z-10 flex items-start justify-between pointer-events-none"
           style="padding:max(22px,env(safe-area-inset-top)) max(22px,4.5vw) 0">
     <div class="in" style="animation-delay:.1s;margin-top:8px">
@@ -74,23 +114,45 @@
   <div class="arc" id="arc"></div>
   <div id="cities"></div>
 
-  <!-- slider -->
   <div class="track" id="track">
     <div class="thumb" id="thumb" role="slider" tabindex="0" aria-label="Social selector" aria-valuemin="0">
       <svg width="12" height="26" viewBox="0 0 12 26" fill="none" stroke="#222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l4-4 4 4M2 19l4 4 4-4M2 12h8M2 15h8"/></svg>
     </div>
   </div>
 
-  <!-- bottom nav (same as the design) -->
   <nav class="absolute z-10 flex items-center justify-center in" style="left:0;right:0;gap:12px;bottom:max(22px,env(safe-area-inset-bottom));animation-delay:.5s">
     <button class="dock bg-white text-[#222]" aria-label="Home">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11 12 3l9 8v10H3z"/></svg></button>
-    <button class="dock glass text-white text-2xl" aria-label="Add">+</button>
-    <button class="glass flex items-center gap-2.5 rounded-full text-sm font-semibold text-white shrink-0" style="height:54px;padding:0 20px 0 5px" aria-label="Profile">
+    <button id="plusBtn" class="dock glass text-white text-2xl" aria-label="Open profile" aria-haspopup="dialog">+</button>
+    <button id="profileBtn" class="glass flex items-center gap-2.5 rounded-full text-sm font-semibold text-white shrink-0" style="height:54px;padding:0 20px 0 5px" aria-label="Profile" aria-haspopup="dialog">
       <span class="rounded-full shrink-0" style="width:44px;height:44px;background:linear-gradient(135deg,#f5c96b,#ea7c8c)"></span>Profile</button>
   </nav>
 
-  <div id="toast" hidden class="absolute z-20 left-1/2 -translate-x-1/2 bottom-28 px-5 py-3 rounded-full glass text-sm" style="background:#000a"></div>
+  <!-- Profile popup -->
+  <div class="pf-bg" id="pfBg"></div>
+  <section class="pf-card" id="pfCard" role="dialog" aria-modal="true" aria-labelledby="pfName" aria-hidden="true">
+    <button class="pf-x" id="pfClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="pf-photo" id="pfPhoto" title="Change photo">
+      <div class="pf-inner"><span id="pfInitial"></span><img id="pfImg" alt="" hidden></div>
+      <span class="pf-cam"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+      <input id="pfFile" type="file" accept="image/*" hidden>
+    </div>
+    <h2 class="pf-name st" id="pfName" style="--i:0"></h2>
+    <p class="pf-handle st" id="pfHandle" style="--i:1"></p>
+    <p class="pf-bio st" id="pfBio" style="--i:2"></p>
+    <div class="pf-stats st" style="--i:3" id="pfStats">
+      <div class="pf-stat"><b data-k="followers_count">—</b><span>Followers</span></div>
+      <div class="pf-stat"><b data-k="follows_count">—</b><span>Following</span></div>
+      <div class="pf-stat"><b data-k="media_count">—</b><span>Posts</span></div>
+    </div>
+    <div class="pf-actions st" style="--i:4">
+      <button class="pf-btn pf-primary" id="pfEdit">Change photo</button>
+      <button class="pf-btn pf-ghost" id="pfDone">Close</button>
+    </div>
+  </section>
+
+  <div id="toast" hidden class="absolute z-40 left-1/2 -translate-x-1/2 bottom-28 px-5 py-3 rounded-full glass text-sm" style="background:#000a"></div>
 
   <div id="fontWarn" hidden class="absolute z-20 left-1/2 -translate-x-1/2 top-[40%] w-[min(92vw,420px)] text-center text-sm rounded-2xl p-4 glass" style="background:#000c">
     <b>Font file not found.</b><br>Put <code>SafiraMarch.otf / .ttf / .woff2</code> inside a <code>fonts</code> folder next to index.html (exact name, case-sensitive), or test it now:
@@ -100,6 +162,15 @@
 </main>
 
 <script>
+/* ===== بياناتك: عدّل الاسم والوصف والصورة من هنا ===== */
+const API_URL="";   /* رابط الـ Worker بتاعك، مثال: "https://wander-ig.yourname.workers.dev" */
+const PROFILE={
+ name:"Your Name",
+ handle:"@yourname",
+ bio:"Write a short line about yourself here. Who you are and what you do.",
+ photo:""            /* مثال: "images/me.jpg" — لو فاضي هيظهر أول حرف من الاسم */
+};
+
 /* Social platforms on the wheel — change names / links here */
 const LINKS={
  "Facebook":"https://facebook.com","X":"https://x.com","Snapchat":"https://snapchat.com","TikTok":"https://tiktok.com",
@@ -118,10 +189,10 @@ thumb.setAttribute('aria-valuemax',N-1);
 /* ---------- responsive layout ---------- */
 function layout(){
  W=innerWidth;H=innerHeight;cy=H*.52;
- if(W<700){cx=-W*.1;R=W*.52;big=W*.12}                         /* phone portrait  */
- else if(H>W&&W<1100){cx=-W*.06;R=W*.5;big=W*.085}              /* tablet portrait */
- else if(H<520){cx=W*.08;R=Math.min(W*.3,H*.9);big=H*.13}       /* phone landscape */
- else{cx=W*.1;R=Math.min(W*.32,H*.62);big=Math.min(W*.05,H*.1)} /* laptop / desktop */
+ if(W<700){cx=-W*.1;R=W*.52;big=W*.12}
+ else if(H>W&&W<1100){cx=-W*.06;R=W*.5;big=W*.085}
+ else if(H<520){cx=W*.08;R=Math.min(W*.3,H*.9);big=H*.13}
+ else{cx=W*.1;R=Math.min(W*.32,H*.62);big=Math.min(W*.05,H*.1)}
  const r=R*.8;
  Object.assign(arc.style,{width:r*2+'px',height:r*2+'px',left:(cx-r)+'px',top:(cy-r)+'px'});
 }
@@ -146,7 +217,7 @@ function render(){
  requestAnimationFrame(render);
 }
 
-/* ---------- sound (iPhone picker-style tick) + vibration ---------- */
+/* ---------- sound + vibration ---------- */
 function unlock(){
  if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
  if(ctx&&ctx.state!=='running')ctx.resume();
@@ -164,8 +235,6 @@ function sound(){
  og.gain.setValueAtTime(.22,t);og.gain.exponentialRampToValueAtTime(.001,t+.025);
  o.connect(og).connect(ctx.destination);o.start(t);o.stop(t+.03);
 }
-/* Android: navigator.vibrate. iPhone: Safari has no vibrate API, so we toggle a hidden
-   <input switch>, which makes iOS play its system haptic. It must run INSIDE a touch/click handler. */
 function haptic(){
  try{
   if(navigator.vibrate&&navigator.vibrate(10))return;
@@ -174,7 +243,6 @@ function haptic(){
   l.appendChild(i);document.body.appendChild(l);l.click();setTimeout(()=>l.remove(),60);
  }catch(e){}
 }
-/* every change of city goes through here: same moment for sound + vibration */
 function setT(v){
  target=clamp(v);const i=Math.round(target);
  if(i!==hapIdx){hapIdx=i;haptic();sound()}
@@ -183,11 +251,11 @@ function setT(v){
 const sb=document.getElementById('soundBtn');
 sb.onclick=()=>{unlock();soundOn=!soundOn;sb.setAttribute('aria-pressed',soundOn);if(soundOn){sound()}haptic()};
 
-/* ---------- input: wheel, drag, slider, keys, click ---------- */
+/* ---------- input ---------- */
 app.addEventListener('wheel',e=>{e.preventDefault();unlock();setT(target+Math.sign(e.deltaY)*.45);
  clearTimeout(app._w);app._w=setTimeout(()=>target=Math.round(target),140)},{passive:false});
 let dragY=null,startT=0,sliding=false;
-app.addEventListener('pointerdown',e=>{unlock();if(e.target.closest('button,a,.track,label'))return;dragY=e.clientY;startT=target});
+app.addEventListener('pointerdown',e=>{unlock();if(e.target.closest('button,a,.track,label,.pf-card'))return;dragY=e.clientY;startT=target});
 addEventListener('pointermove',e=>{
  if(dragY!==null)setT(startT-(e.clientY-dragY)/42);
  if(sliding){const r=track.getBoundingClientRect();setT(((e.clientY-r.top)/r.height)*(N-1))}});
@@ -196,18 +264,91 @@ addEventListener('pointercancel',()=>{dragY=null;sliding=false});
 thumb.addEventListener('pointerdown',e=>{sliding=true;unlock();e.preventDefault()});
 track.addEventListener('pointerdown',e=>{if(e.target.closest('.thumb'))return;unlock();const r=track.getBoundingClientRect();setT(Math.round(((e.clientY-r.top)/r.height)*(N-1)))});
 addEventListener('keydown',e=>{
+ if(pfOpen){if(e.key==='Escape')closeProfile();return}
  if(['ArrowDown','ArrowRight'].includes(e.key))setT(Math.round(target)+1);
  if(['ArrowUp','ArrowLeft'].includes(e.key))setT(Math.round(target)-1)});
 document.getElementById('searchBtn').onclick=()=>{
  const q=(prompt('Search a social')||'').trim().toLowerCase();if(!q)return;
  const i=CITIES.findIndex(c=>c.toLowerCase().startsWith(q));if(i>-1)setT(i)};
 
-/* tapping the selected platform opens its link in a new tab */
 function openCity(name){
  const t=document.getElementById('toast');t.textContent='Opening '+name+'…';t.hidden=false;
  clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,1600);
  window.open(LINKS[name],'_blank','noopener');
 }
+
+/* ---------- Profile popup ---------- */
+const pfBg=document.getElementById('pfBg'),pfCard=document.getElementById('pfCard'),
+ pfImg=document.getElementById('pfImg'),pfInitial=document.getElementById('pfInitial'),
+ pfFile=document.getElementById('pfFile');
+let pfOpen=false,pfFrom=null;
+
+document.getElementById('pfName').textContent=PROFILE.name;
+document.getElementById('pfHandle').textContent=PROFILE.handle;
+document.getElementById('pfBio').textContent=PROFILE.bio;
+pfInitial.textContent=(PROFILE.name.trim()[0]||'?').toUpperCase();
+function setPhoto(src){
+ if(!src){pfImg.hidden=true;pfInitial.hidden=false;return}
+ pfImg.onload=()=>{pfImg.hidden=false;pfInitial.hidden=true};
+ pfImg.onerror=()=>{pfImg.hidden=true;pfInitial.hidden=false};
+ pfImg.src=src;
+}
+setPhoto(PROFILE.photo);
+
+/* ---------- بيانات حقيقية من انستجرام (عن طريق الـ Worker) ---------- */
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+'M':n>=1e4?(n/1e3).toFixed(1).replace('.0','')+'K':String(n);
+function countUp(el,to){
+ const t0=performance.now(),D=900;
+ (function f(t){const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);
+  el.textContent=fmt(Math.round(to*e));if(k<1)requestAnimationFrame(f)})(t0);
+}
+let liveAt=0;
+async function loadLive(){
+ if(!API_URL||Date.now()-liveAt<60000)return;
+ try{
+  const r=await fetch(API_URL,{cache:'no-store'});if(!r.ok)throw 0;
+  const d=await r.json();liveAt=Date.now();
+  if(d.name||d.username){document.getElementById('pfName').textContent=d.name||d.username;
+   pfInitial.textContent=(d.name||d.username)[0].toUpperCase()}
+  if(d.username)document.getElementById('pfHandle').innerHTML='<i class="pf-live"></i>@'+d.username;
+  if(d.biography)document.getElementById('pfBio').textContent=d.biography;
+  if(d.profile_picture_url)setPhoto(d.profile_picture_url);
+  document.querySelectorAll('#pfStats [data-k]').forEach(b=>{
+   if(typeof d[b.dataset.k]==='number')setTimeout(()=>countUp(b,d[b.dataset.k]),500)});
+ }catch(e){
+  const t=document.getElementById('toast');t.textContent='Could not load live data';t.hidden=false;
+  clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,2200);
+ }
+}
+
+function openProfile(from){
+ unlock();haptic();pfFrom=from;loadLive();
+ /* the card grows out of the button that was pressed */
+ const b=from.getBoundingClientRect();
+ pfCard.style.setProperty('--dx',(b.left+b.width/2-innerWidth/2)+'px');
+ pfCard.style.setProperty('--dy',(b.top+b.height/2-innerHeight/2)+'px');
+ pfOpen=true;
+ pfBg.classList.add('open');pfCard.classList.add('open');pfCard.setAttribute('aria-hidden','false');
+ setTimeout(()=>document.getElementById('pfClose').focus({preventScroll:true}),450);
+}
+function closeProfile(){
+ if(!pfOpen)return;pfOpen=false;haptic();
+ if(pfFrom){const b=pfFrom.getBoundingClientRect();
+  pfCard.style.setProperty('--dx',(b.left+b.width/2-innerWidth/2)+'px');
+  pfCard.style.setProperty('--dy',(b.top+b.height/2-innerHeight/2)+'px')}
+ pfBg.classList.remove('open');pfCard.classList.remove('open');pfCard.setAttribute('aria-hidden','true');
+ if(pfFrom)pfFrom.focus({preventScroll:true});
+}
+document.getElementById('plusBtn').onclick=e=>openProfile(e.currentTarget);
+document.getElementById('profileBtn').onclick=e=>openProfile(e.currentTarget);
+document.getElementById('pfClose').onclick=closeProfile;
+document.getElementById('pfDone').onclick=closeProfile;
+pfBg.onclick=closeProfile;
+const pickPhoto=()=>pfFile.click();
+document.getElementById('pfEdit').onclick=pickPhoto;
+document.getElementById('pfPhoto').onclick=e=>{if(e.target!==pfFile)pickPhoto()};
+pfFile.onchange=()=>{const f=pfFile.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>setPhoto(r.result);r.readAsDataURL(f)};
 
 /* ---------- font check ---------- */
 const FN='Safira March Personal Use Only';

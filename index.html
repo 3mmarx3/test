@@ -41,6 +41,7 @@
   .track{position:absolute;right:max(20px,4.5vw);top:20vh;bottom:24vh;width:4px;border-radius:4px;background:#ffffff1f}
   .thumb{position:absolute;left:50%;width:24px;height:44px;margin-left:-12px;border-radius:14px;background:#fff;display:grid;place-items:center;cursor:grab}
   .glass{background:#ffffff1f;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .dock{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none;line-height:1}
   .ibtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff}
   #soundBtn[aria-pressed=true] .off,#soundBtn[aria-pressed=false] .on{display:none}
   .in{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
@@ -56,7 +57,7 @@
   <header class="absolute top-0 inset-x-0 z-10 flex items-start justify-between pointer-events-none"
           style="padding:max(22px,env(safe-area-inset-top)) max(22px,4.5vw) 0">
     <div class="in" style="animation-delay:.1s;margin-top:8px">
-      <div style="font-size:clamp(11px,1.3vw,15px);color:#ffffffb3">Select a city</div>
+      <div style="font-size:clamp(11px,1.3vw,15px);color:#ffffffb3">Select a social</div>
       <h1 style="margin:4px 0 0;font-weight:600;letter-spacing:-.03em;line-height:.95;font-size:clamp(26px,min(7.2vw,6vh),64px)">Choose your<br>destination</h1>
     </div>
     <div class="flex gap-2 pointer-events-auto in" style="animation-delay:.3s">
@@ -64,7 +65,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 9v6h4l5 4V5L8 9z"/><path class="on" d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/><path class="off" d="M17 9l5 6M22 9l-5 6"/></svg>
       </button>
-      <button id="searchBtn" class="ibtn glass" aria-label="Search city">
+      <button id="searchBtn" class="ibtn glass" aria-label="Search social">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>
     </div>
@@ -75,18 +76,17 @@
 
   <!-- slider -->
   <div class="track" id="track">
-    <div class="thumb" id="thumb" role="slider" tabindex="0" aria-label="City selector" aria-valuemin="0">
+    <div class="thumb" id="thumb" role="slider" tabindex="0" aria-label="Social selector" aria-valuemin="0">
       <svg width="12" height="26" viewBox="0 0 12 26" fill="none" stroke="#222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l4-4 4 4M2 19l4 4 4-4M2 12h8M2 15h8"/></svg>
     </div>
   </div>
 
   <!-- bottom nav (same as the design) -->
-  <nav class="absolute z-10 flex items-center justify-center gap-2.5 in" style="left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));animation-delay:.5s">
-    <button class="grid place-items-center rounded-full bg-white text-[#222] shrink-0" style="width:54px;height:54px" aria-label="Home">
+  <nav class="absolute z-10 flex items-center justify-center in" style="left:0;right:0;gap:12px;bottom:max(22px,env(safe-area-inset-bottom));animation-delay:.5s">
+    <button class="dock bg-white text-[#222]" aria-label="Home">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11 12 3l9 8v10H3z"/></svg></button>
-    <button class="glass grid place-items-center rounded-full text-xl shrink-0" style="width:46px;height:46px" aria-label="Add trip">+</button>
-    <button class="glass flex items-center gap-2 rounded-full text-sm font-semibold shrink-0" style="height:46px;padding:0 18px 0 5px">
-      <span class="rounded-full" style="width:36px;height:36px;background:linear-gradient(135deg,#f5c96b,#ea7c8c)"></span>Profile</button>
+    <button class="dock glass text-white text-2xl" aria-label="Add">+</button>
+    <button class="dock glass p-[5px]" aria-label="Profile"><span class="block w-full h-full rounded-full" style="background:linear-gradient(135deg,#f5c96b,#ea7c8c)"></span></button>
   </nav>
 
   <div id="toast" hidden class="absolute z-20 left-1/2 -translate-x-1/2 bottom-28 px-5 py-3 rounded-full glass text-sm" style="background:#000a"></div>
@@ -99,7 +99,12 @@
 </main>
 
 <script>
-const CITIES=["Dubai","Vienna","Belgrade","London","Paris","Bratislava","Croatia","Montenegro","Cairo"];
+/* Social platforms on the wheel — change names / links here */
+const LINKS={
+ "Facebook":"https://facebook.com","X":"https://x.com","Snapchat":"https://snapchat.com","TikTok":"https://tiktok.com",
+ "Instagram":"https://instagram.com","YouTube":"https://youtube.com","WhatsApp":"https://wa.me/","LinkedIn":"https://linkedin.com","Telegram":"https://t.me/"
+};
+const CITIES=Object.keys(LINKS);
 const N=CITIES.length, STEP=14*Math.PI/180, clamp=v=>Math.max(0,Math.min(N-1,v));
 let target=4,cur=4,hapIdx=4,soundOn=false,ctx=null,noiseBuf=null,W,H,R,cx,cy,big;
 
@@ -193,14 +198,14 @@ addEventListener('keydown',e=>{
  if(['ArrowDown','ArrowRight'].includes(e.key))setT(Math.round(target)+1);
  if(['ArrowUp','ArrowLeft'].includes(e.key))setT(Math.round(target)-1)});
 document.getElementById('searchBtn').onclick=()=>{
- const q=(prompt('Search a city')||'').trim().toLowerCase();if(!q)return;
+ const q=(prompt('Search a social')||'').trim().toLowerCase();if(!q)return;
  const i=CITIES.findIndex(c=>c.toLowerCase().startsWith(q));if(i>-1)setT(i)};
 
-/* tapping the selected city: put your own link/page here */
+/* tapping the selected platform opens its link in a new tab */
 function openCity(name){
  const t=document.getElementById('toast');t.textContent='Opening '+name+'…';t.hidden=false;
  clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,1600);
- /* location.href='paris.html'; */
+ window.open(LINKS[name],'_blank','noopener');
 }
 
 /* ---------- font check ---------- */

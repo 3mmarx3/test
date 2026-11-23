@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wander — Choose your destination</title>
+<meta name="theme-color" content="#2a2f38">
 <script src="https://cdn.tailwindcss.com"></script>
+<!-- Fallback fonts (used only if Safira March is missing) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
-  /* Put your font file inside a "fonts" folder next to index.html */
+  /* Put your font file in a "fonts" folder next to index.html (names are case-sensitive on GitHub Pages) */
   @font-face{
     font-family:"Safira March Personal Use Only";
     src:local("Safira March Personal Use Only"),local("Safira March"),
@@ -20,176 +23,199 @@
         url("fonts/safira-march.ttf") format("truetype");
     font-weight:normal;font-style:normal;font-display:swap;
   }
-  :root{--bg:#2a2f38;--gl-font-sans:"Safira March Personal Use Only",sans-serif}
-  *{box-sizing:border-box}
-  html,body{height:100%;-webkit-text-size-adjust:100%;margin:0;overflow:hidden;background:var(--bg);color:#f3f1ec;font-family:var(--gl-font-sans)}
-  .serif{font-family:var(--gl-font-sans)}
-  #app{position:fixed;inset:0;height:100dvh;touch-action:none;user-select:none;overflow:hidden;
+  :root{
+    --bg:#2a2f38;
+    --gl-font-sans:"Safira March Personal Use Only","Inter Tight",sans-serif;
+    --gl-font-city:"Safira March Personal Use Only","Instrument Serif",serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;
+    background:var(--bg);color:#f3f1ec;font-family:var(--gl-font-sans)}
+  #app{position:fixed;inset:0;height:100dvh;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;
     background:radial-gradient(120% 90% at 30% 40%,#323843 0%,#2a2f38 55%,#22262d 100%)}
-  .city{position:absolute;left:0;top:0;white-space:nowrap;transform-origin:0 50%;cursor:pointer;line-height:1;will-change:transform,opacity}
-  .arc{position:absolute;border:1.5px solid #ffffff4d;border-radius:50%;pointer-events:none}
-  .track{position:absolute;right:max(22px,4vw);top:20vh;bottom:20vh;width:5px;border-radius:5px;background:#ffffff1c}
-  .thumb{position:absolute;left:50%;width:26px;height:46px;margin-left:-13px;border-radius:14px;background:#fff;display:grid;place-items:center;color:#222;font-size:9px;line-height:1;cursor:grab;text-align:center}
-  .glass{background:#ffffff1f;backdrop-filter:blur(8px)}
-  .soc{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#ffffff1f;transition:.25s}
-  .soc:hover{background:#fff;color:#1b1f26;transform:translateY(-4px)}
+  .city{position:absolute;left:0;top:0;white-space:nowrap;transform-origin:0 50%;cursor:pointer;line-height:1;
+    font-family:var(--gl-font-city);will-change:transform,opacity}
+  .arc{position:absolute;border:1.5px solid #ffffff59;border-radius:50%;pointer-events:none;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 12%,#000 50%,transparent 88%);
+    mask-image:linear-gradient(to bottom,transparent 12%,#000 50%,transparent 88%)}
+  .track{position:absolute;right:max(20px,4.5vw);top:20vh;bottom:24vh;width:4px;border-radius:4px;background:#ffffff1f}
+  .thumb{position:absolute;left:50%;width:24px;height:44px;margin-left:-12px;border-radius:14px;background:#fff;display:grid;place-items:center;cursor:grab}
+  .glass{background:#ffffff1f;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .ibtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff}
+  #soundBtn[aria-pressed=true] .off,#soundBtn[aria-pressed=false] .on{display:none}
   .in{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
-  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  #tag.pop{animation:pop .35s ease}
-  .info-pos{bottom:clamp(120px,19vh,160px)}
-  @media (max-height:520px){.info-pos{bottom:88px}.hide-short{display:none}}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
   :focus-visible{outline:2px solid #fff;outline-offset:3px}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.in{opacity:1}}
 </style>
 </head>
 <body>
 <main id="app">
-  <label id="hapticLbl" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" aria-hidden="true"><input type="checkbox" switch id="hapticSw" tabindex="-1"></label>
-  <!-- top bar -->
-  <div class="absolute top-0 inset-x-0 z-10 flex items-start justify-between p-6 sm:p-10 pointer-events-none" style="padding-top:max(1.5rem,env(safe-area-inset-top))">
-    <div class="in pointer-events-auto" style="animation-delay:.1s">
-      <div class="text-sm text-white/70">Select a city</div>
-      <h1 class="font-bold tracking-tight leading-[.95] mt-1" style="font-size:clamp(30px,min(6.2vw,9vh),84px)">Choose your<br>destination</h1>
+
+  <!-- header (same as the design) -->
+  <header class="absolute top-0 inset-x-0 z-10 flex items-start justify-between pointer-events-none"
+          style="padding:max(22px,env(safe-area-inset-top)) max(22px,4.5vw) 0">
+    <div class="in" style="animation-delay:.1s;margin-top:8px">
+      <div style="font-size:clamp(11px,1.3vw,15px);color:#ffffffb3">Select a city</div>
+      <h1 style="margin:4px 0 0;font-weight:600;letter-spacing:-.03em;line-height:.95;font-size:clamp(26px,min(7.2vw,6vh),64px)">Choose your<br>destination</h1>
     </div>
     <div class="flex gap-2 pointer-events-auto in" style="animation-delay:.3s">
-      <button id="soundBtn" class="glass h-11 px-4 rounded-full text-sm font-semibold" aria-pressed="false">Sound off</button>
-      <button id="searchBtn" class="glass w-11 h-11 rounded-full grid place-items-center" aria-label="Search city">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <button id="soundBtn" class="ibtn glass" aria-pressed="false" aria-label="Toggle sound">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 9v6h4l5 4V5L8 9z"/><path class="on" d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/><path class="off" d="M17 9l5 6M22 9l-5 6"/></svg>
+      </button>
+      <button id="searchBtn" class="ibtn glass" aria-label="Search city">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>
     </div>
-  </div>
+  </header>
 
-  <div id="fontWarn" hidden class="absolute z-20 left-1/2 -translate-x-1/2 top-[44%] w-[min(92vw,420px)] text-center text-sm rounded-2xl p-4 glass" style="background:#000a">
-    <b>Font file not found.</b><br>Put <code>SafiraMarch.otf / .ttf / .woff2</code> inside a <code>fonts</code> folder next to index.html, or test it now:
-    <label class="mt-3 inline-block h-10 leading-10 px-5 rounded-full bg-white text-[#1b1f26] font-semibold cursor-pointer">Choose font file
-      <input id="fontFile" type="file" accept=".otf,.ttf,.woff,.woff2" hidden></label>
-  </div>
   <div class="arc" id="arc"></div>
   <div id="cities"></div>
 
-  <!-- selected city info -->
-  <div id="info" class="info-pos absolute z-10 pointer-events-none" style="left:max(24px,5vw)">
-    <div id="tag" class="serif text-xl sm:text-2xl text-white/80"></div>
-    <button id="go" class="pointer-events-auto mt-3 h-12 px-6 rounded-full bg-white text-[#1b1f26] font-semibold hover:scale-105 transition">Explore <span id="goCity"></span></button>
+  <!-- slider -->
+  <div class="track" id="track">
+    <div class="thumb" id="thumb" role="slider" tabindex="0" aria-label="City selector" aria-valuemin="0">
+      <svg width="12" height="26" viewBox="0 0 12 26" fill="none" stroke="#222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l4-4 4 4M2 19l4 4 4-4M2 12h8M2 15h8"/></svg>
+    </div>
   </div>
 
-  <div class="track" id="track"><div class="thumb" id="thumb" role="slider" tabindex="0" aria-label="City selector">▲<br>═<br>▼</div></div>
-
-  <!-- bottom nav -->
-  <nav class="absolute z-10 left-6 sm:left-10 flex items-center gap-3 in" style="animation-delay:.5s;bottom:max(1.5rem,env(safe-area-inset-bottom))">
-    <button class="w-14 h-14 rounded-full bg-white text-[#222] grid place-items-center" aria-label="Home">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v10H3z"/></svg></button>
-    <button class="glass w-12 h-12 rounded-full grid place-items-center text-xl" aria-label="Add trip">+</button>
-    <button class="glass h-12 pl-1.5 pr-5 rounded-full flex items-center gap-2 text-sm font-semibold">
-      <span class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-300 to-rose-400"></span>Profile</button>
+  <!-- bottom nav (same as the design) -->
+  <nav class="absolute z-10 flex items-center justify-center gap-2.5 in" style="left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));animation-delay:.5s">
+    <button class="grid place-items-center rounded-full bg-white text-[#222] shrink-0" style="width:54px;height:54px" aria-label="Home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11 12 3l9 8v10H3z"/></svg></button>
+    <button class="glass grid place-items-center rounded-full text-xl shrink-0" style="width:46px;height:46px" aria-label="Add trip">+</button>
+    <button class="glass flex items-center gap-2 rounded-full text-sm font-semibold shrink-0" style="height:46px;padding:0 18px 0 5px">
+      <span class="rounded-full" style="width:36px;height:36px;background:linear-gradient(135deg,#f5c96b,#ea7c8c)"></span>Profile</button>
   </nav>
 
-  <!-- social -->
-  <div class="absolute z-10 flex gap-2 in bottom-[92px] left-6 sm:bottom-6 sm:left-auto sm:right-10 sm:mr-12" style="animation-delay:.6s">
-    <a class="soc" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-    <a class="soc" href="https://x.com" target="_blank" rel="noopener" aria-label="X"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2h3.3l-7.2 8.3L22.8 22h-6.6l-5.2-6.8L5 22H1.7l7.7-8.8L1.2 2H8l4.7 6.2L18.2 2zm-1.2 18h1.8L7 3.9H5.1L17 20z"/></svg></a>
-    <a class="soc" href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8V6c0-1 .3-1.5 1.7-1.5H18V1h-3.2C11.4 1 10 3 10 5.6V8H7v3.6h3V23h4V11.6h3.2L18 8h-4z"/></svg></a>
-    <a class="soc" href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2h-3.3v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9a6.2 6.2 0 1 0 5.3 6.2V8.6A7.5 7.5 0 0 0 21 10V6.7A4.4 4.4 0 0 1 16.5 2z"/></svg></a>
-    <a class="soc" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2C.5 9.1.5 12 .5 12s0 2.9.5 4.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-4.8.5-4.8s0-2.9-.5-4.8zM9.7 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a>
+  <div id="toast" hidden class="absolute z-20 left-1/2 -translate-x-1/2 bottom-28 px-5 py-3 rounded-full glass text-sm" style="background:#000a"></div>
+
+  <div id="fontWarn" hidden class="absolute z-20 left-1/2 -translate-x-1/2 top-[40%] w-[min(92vw,420px)] text-center text-sm rounded-2xl p-4 glass" style="background:#000c">
+    <b>Font file not found.</b><br>Put <code>SafiraMarch.otf / .ttf / .woff2</code> inside a <code>fonts</code> folder next to index.html (exact name, case-sensitive), or test it now:
+    <label class="mt-3 inline-block h-10 leading-10 px-5 rounded-full bg-white text-[#1b1f26] font-semibold cursor-pointer">Choose font file
+      <input id="fontFile" type="file" accept=".otf,.ttf,.woff,.woff2" hidden></label>
   </div>
 </main>
 
 <script>
-const CITIES=[
- ["Dubai","Desert skyline"],["Vienna","Coffee & concerts"],["Belgrade","Nights on the river"],["London","Museums & markets"],
- ["Paris","City of light"],["Bratislava","Old town walks"],["Croatia","Islands & sea"],["Montenegro","Mountains & bays"],["Cairo","Where it all began"]
-];
-const N=CITIES.length, STEP=15*Math.PI/180;
-let target=4,cur=4,last=-1,soundOn=false,ctx=null,W,H,R,cx,cy;
-const app=document.getElementById('app'),wrap=document.getElementById('cities'),arc=document.getElementById('arc'),
- track=document.getElementById('track'),thumb=document.getElementById('thumb'),tag=document.getElementById('tag'),goCity=document.getElementById('goCity');
-const els=CITIES.map((c,i)=>{const s=document.createElement('span');s.className='city serif';s.textContent=c[0];
- s.onclick=()=>{unlock();target=i};wrap.appendChild(s);return s});
+const CITIES=["Dubai","Vienna","Belgrade","London","Paris","Bratislava","Croatia","Montenegro","Cairo"];
+const N=CITIES.length, STEP=14*Math.PI/180, clamp=v=>Math.max(0,Math.min(N-1,v));
+let target=4,cur=4,hapIdx=4,soundOn=false,ctx=null,noiseBuf=null,W,H,R,cx,cy,big;
 
+const app=document.getElementById('app'),wrap=document.getElementById('cities'),arc=document.getElementById('arc'),
+ track=document.getElementById('track'),thumb=document.getElementById('thumb');
+const els=CITIES.map((c,i)=>{const s=document.createElement('span');s.className='city';s.textContent=c;
+ s.onclick=()=>{unlock();if(Math.abs(i-cur)<.5)openCity(c);else setT(i)};wrap.appendChild(s);return s});
+thumb.setAttribute('aria-valuemax',N-1);
+
+/* ---------- responsive layout ---------- */
 function layout(){
  W=innerWidth;H=innerHeight;cy=H*.52;
- if(W<700){cx=-W*.1;R=W*.66}                       /* phones (portrait) */
- else if(H>W&&W<1100){cx=-W*.04;R=W*.58}           /* tablets (portrait) */
- else if(H<520){cx=W*.1;R=Math.min(W*.34,H*1.05)}  /* phones (landscape) */
- else{cx=W*.16;R=Math.min(W*.36,H*.8)}             /* laptops / desktops */
- const r=R*.9;Object.assign(arc.style,{width:r*2+'px',height:r*2+'px',top:(cy-r)+'px'});
- arc.style.left=(cx-r+R*.04)+'px';
+ if(W<700){cx=-W*.1;R=W*.52;big=W*.12}                         /* phone portrait  */
+ else if(H>W&&W<1100){cx=-W*.06;R=W*.5;big=W*.085}              /* tablet portrait */
+ else if(H<520){cx=W*.08;R=Math.min(W*.3,H*.9);big=H*.13}       /* phone landscape */
+ else{cx=W*.1;R=Math.min(W*.32,H*.62);big=Math.min(W*.05,H*.1)} /* laptop / desktop */
+ const r=R*.8;
+ Object.assign(arc.style,{width:r*2+'px',height:r*2+'px',left:(cx-r)+'px',top:(cy-r)+'px'});
 }
-const clamp=v=>Math.max(0,Math.min(N-1,v));
+
+/* ---------- wheel render ---------- */
 function render(){
- cur+=(target-cur)*.14;if(Math.abs(target-cur)<.001)cur=target;
- const idx=Math.round(cur);if(idx!==last){last=idx;tick();label()}
- const big=Math.max(52,Math.min(W*(W<700?.17:.085),H*.15));
+ cur+=(target-cur)*.16;if(Math.abs(target-cur)<.001)cur=target;
  els.forEach((el,i)=>{
   const d=i-cur,a=d*STEP,ad=Math.abs(d);
   const x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);
-  el.style.fontSize=(ad<1?big-(big*.45)*ad:Math.max(20,big*.5-ad*3))+'px';
-  el.style.opacity=Math.max(0,1-ad*.26);
-  el.style.color=ad<.5?'#fff':'#c4c8cf';
+  const size=ad<1?big+(big*.46-big)*ad:Math.max(big*.28,big*.46-(ad-1)*big*.05);
+  const act=ad<.5;
+  el.style.fontSize=size+'px';
+  el.style.opacity=Math.max(0,1-ad*.28);
+  el.style.color=act?'#fff':'#aeb3bb';
+  el.style.textTransform=act?'uppercase':'none';
   el.style.transform=`translate(${x}px,${y}px) translateY(-50%) rotate(${a}rad)`;
   el.style.pointerEvents=ad>3.5?'none':'auto';
  });
- thumb.style.top=(cur/(N-1))*(track.clientHeight-46)+'px';
+ thumb.style.top=(cur/(N-1))*(track.clientHeight-44)+'px';
+ thumb.setAttribute('aria-valuenow',Math.round(cur));
  requestAnimationFrame(render);
 }
-function label(){tag.textContent=CITIES[last][1];goCity.textContent=CITIES[last][0];tag.classList.remove('pop');void tag.offsetWidth;tag.classList.add('pop')}
 
-/* sound */
-function unlock(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume()}
-let noiseBuf=null;
-function tick(){
- haptic();
- if(!soundOn||!ctx)return;
- const t=ctx.currentTime;
- if(!noiseBuf){noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.03,ctx.sampleRate);
+/* ---------- sound (iPhone picker-style tick) + vibration ---------- */
+function unlock(){
+ if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+ if(ctx&&ctx.state!=='running')ctx.resume();
+}
+function sound(){
+ if(!soundOn||!ctx)return;const t=ctx.currentTime;
+ if(!noiseBuf){noiseBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.03),ctx.sampleRate);
   const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
- /* iPhone picker-style click: a very short, dry, mechanical tick */
  const n=ctx.createBufferSource();n.buffer=noiseBuf;
  const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3200;bp.Q.value=1.2;
  const g=ctx.createGain();g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+.012);
  n.connect(bp).connect(g).connect(ctx.destination);n.start(t);n.stop(t+.02);
- /* tiny low body so it feels like a tap */
  const o=ctx.createOscillator(),og=ctx.createGain();
  o.type='sine';o.frequency.setValueAtTime(260,t);o.frequency.exponentialRampToValueAtTime(120,t+.02);
  og.gain.setValueAtTime(.22,t);og.gain.exponentialRampToValueAtTime(.001,t+.025);
  o.connect(og).connect(ctx.destination);o.start(t);o.stop(t+.03);
 }
-/* vibration: Android = navigator.vibrate, iPhone = hidden switch trick (Safari 17.4+) */
+/* Android: navigator.vibrate. iPhone: Safari has no vibrate API, so we toggle a hidden
+   <input switch>, which makes iOS play its system haptic. It must run INSIDE a touch/click handler. */
 function haptic(){
- if(navigator.vibrate){navigator.vibrate(10);return}
- const l=document.getElementById('hapticLbl');if(l)l.click();
+ try{
+  if(navigator.vibrate&&navigator.vibrate(10))return;
+  const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.display='none';
+  const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');
+  l.appendChild(i);document.body.appendChild(l);l.click();setTimeout(()=>l.remove(),60);
+ }catch(e){}
 }
-const sb=document.getElementById('soundBtn');
-sb.onclick=()=>{unlock();soundOn=!soundOn;sb.textContent='Sound '+(soundOn?'on':'off');sb.setAttribute('aria-pressed',soundOn);if(soundOn)tick()};
+/* every change of city goes through here: same moment for sound + vibration */
+function setT(v){
+ target=clamp(v);const i=Math.round(target);
+ if(i!==hapIdx){hapIdx=i;haptic();sound()}
+}
 
-/* input */
-app.addEventListener('wheel',e=>{e.preventDefault();unlock();target=clamp(target+Math.sign(e.deltaY)*.45);
+const sb=document.getElementById('soundBtn');
+sb.onclick=()=>{unlock();soundOn=!soundOn;sb.setAttribute('aria-pressed',soundOn);if(soundOn){sound()}haptic()};
+
+/* ---------- input: wheel, drag, slider, keys, click ---------- */
+app.addEventListener('wheel',e=>{e.preventDefault();unlock();setT(target+Math.sign(e.deltaY)*.45);
  clearTimeout(app._w);app._w=setTimeout(()=>target=Math.round(target),140)},{passive:false});
 let dragY=null,startT=0,sliding=false;
-app.addEventListener('pointerdown',e=>{if(e.target.closest('button,a,.track'))return;dragY=e.clientY;startT=target;unlock()});
+app.addEventListener('pointerdown',e=>{unlock();if(e.target.closest('button,a,.track,label'))return;dragY=e.clientY;startT=target});
 addEventListener('pointermove',e=>{
- if(dragY!==null)target=clamp(startT-(e.clientY-dragY)/45);
- if(sliding){const r=track.getBoundingClientRect();target=clamp(((e.clientY-r.top)/r.height)*(N-1))}});
+ if(dragY!==null)setT(startT-(e.clientY-dragY)/42);
+ if(sliding){const r=track.getBoundingClientRect();setT(((e.clientY-r.top)/r.height)*(N-1))}});
 addEventListener('pointerup',()=>{if(dragY!==null||sliding)target=Math.round(target);dragY=null;sliding=false});
+addEventListener('pointercancel',()=>{dragY=null;sliding=false});
 thumb.addEventListener('pointerdown',e=>{sliding=true;unlock();e.preventDefault()});
-track.addEventListener('pointerdown',e=>{if(e.target===thumb)return;unlock();const r=track.getBoundingClientRect();target=Math.round(clamp(((e.clientY-r.top)/r.height)*(N-1)))});
-addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowRight')target=Math.round(clamp(target+1));if(e.key==='ArrowUp'||e.key==='ArrowLeft')target=Math.round(clamp(target-1))});
-document.getElementById('searchBtn').onclick=()=>{const q=(prompt('Search a city')||'').trim().toLowerCase();if(!q)return;
- const i=CITIES.findIndex(c=>c[0].toLowerCase().startsWith(q));if(i>-1)target=i};
-document.getElementById('go').onclick=()=>alert('Opening '+CITIES[last][0]+'… (connect your own page here)');
+track.addEventListener('pointerdown',e=>{if(e.target.closest('.thumb'))return;unlock();const r=track.getBoundingClientRect();setT(Math.round(((e.clientY-r.top)/r.height)*(N-1)))});
+addEventListener('keydown',e=>{
+ if(['ArrowDown','ArrowRight'].includes(e.key))setT(Math.round(target)+1);
+ if(['ArrowUp','ArrowLeft'].includes(e.key))setT(Math.round(target)-1)});
+document.getElementById('searchBtn').onclick=()=>{
+ const q=(prompt('Search a city')||'').trim().toLowerCase();if(!q)return;
+ const i=CITIES.findIndex(c=>c.toLowerCase().startsWith(q));if(i>-1)setT(i)};
 
-/* font check */
+/* tapping the selected city: put your own link/page here */
+function openCity(name){
+ const t=document.getElementById('toast');t.textContent='Opening '+name+'…';t.hidden=false;
+ clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,1600);
+ /* location.href='paris.html'; */
+}
+
+/* ---------- font check ---------- */
 const FN='Safira March Personal Use Only';
-function warn(){if(location.protocol==='file:'||/^(localhost|127\.|192\.168\.)/.test(location.hostname))document.getElementById('fontWarn').hidden=false}
+function warn(){const dev=location.protocol==='file:'||/^(localhost|127\.|192\.168\.)/.test(location.hostname)||location.search.includes('debugfont');
+ if(dev)document.getElementById('fontWarn').hidden=false}
 document.fonts.load('32px "'+FN+'"').then(f=>{if(!f.length)warn()}).catch(warn);
 document.getElementById('fontFile').onchange=async e=>{
  const f=e.target.files[0];if(!f)return;
  const ff=new FontFace(FN,await f.arrayBuffer());await ff.load();document.fonts.add(ff);
- document.getElementById('fontWarn').hidden=true;
-};
+ document.getElementById('fontWarn').hidden=true};
 
-layout();addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,200));requestAnimationFrame(render);
+layout();addEventListener('resize',layout);
+addEventListener('orientationchange',()=>setTimeout(layout,200));
+requestAnimationFrame(render);
 </script>
 </body>
 </html>

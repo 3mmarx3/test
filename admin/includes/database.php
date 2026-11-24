@@ -53,7 +53,8 @@ try {
     $stmtMariam->execute();
     $mRow = $stmtMariam->fetch();
     if (!$mRow) {
-        $pdo->prepare("INSERT INTO users (name, username, handle, email, password, role, status) VALUES ('Mariam Ali', 'mariam', '@mariam', 'mariam@test.local', '$2y$10$vNl41r4zI1qFsmw9X9qf.u4yKjZzLqD8l9JbQhXgK/K4gq0ZkC.6e', 'user', 'active')")->execute();
+        $pdo->prepare('INSERT INTO users (name, username, handle, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute(['Mariam Ali', 'mariam', '@mariam', 'mariam@test.local', '$2y$10$vNl41r4zI1qFsmw9X9qf.u4yKjZzLqD8l9JbQhXgK/K4gq0ZkC.6e', 'user', 'active']);
         $mId = (int)$pdo->lastInsertId();
         if ($mId > 0) {
             $stmtL = $pdo->prepare("INSERT INTO links (user_id, name, url, sort_order, clicks) VALUES (?, ?, ?, ?, 0)");
@@ -66,12 +67,32 @@ try {
     $stmtOmar->execute();
     $oRow = $stmtOmar->fetch();
     if (!$oRow) {
-        $pdo->prepare("INSERT INTO users (name, username, handle, email, password, role, status) VALUES ('Omar Qadry', 'omar-qadry', '@omar-qadry', 'omar@test.local', '$2y$10$vNl41r4zI1qFsmw9X9qf.u4yKjZzLqD8l9JbQhXgK/K4gq0ZkC.6e', 'user', 'active')")->execute();
+        $pdo->prepare('INSERT INTO users (name, username, handle, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute(['Omar Qadry', 'omar-qadry', '@omar-qadry', 'omar@test.local', '$2y$10$vNl41r4zI1qFsmw9X9qf.u4yKjZzLqD8l9JbQhXgK/K4gq0ZkC.6e', 'user', 'active']);
         $oId = (int)$pdo->lastInsertId();
         if ($oId > 0) {
             $stmtL = $pdo->prepare("INSERT INTO links (user_id, name, url, sort_order, clicks) VALUES (?, ?, ?, ?, 0)");
             $stmtL->execute([$oId, 'YouTube Channel', 'https://youtube.com/@omarqadry', 1]);
             $stmtL->execute([$oId, 'Instagram Photos', 'https://instagram.com/omarqadry', 2]);
         }
+    }
+
+    $stmtMedo = $pdo->prepare("SELECT id FROM users WHERE username = 'medo123' LIMIT 1");
+    $stmtMedo->execute();
+    $medoRow = $stmtMedo->fetch();
+    if (!$medoRow) {
+        $pdo->prepare('INSERT INTO users (name, username, handle, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute(['mohamed abdlfatah khedr', 'medo123', '@medo123', 'medo123@wander.local', '$2y$10$vNl41r4zI1qFsmw9X9qf.u4yKjZzLqD8l9JbQhXgK/K4gq0ZkC.6e', 'user', 'active']);
+        $medoId = (int)$pdo->lastInsertId();
+        if ($medoId > 0) {
+            $stmtL = $pdo->prepare("INSERT INTO links (user_id, name, url, sort_order, clicks) VALUES (?, ?, ?, ?, 0)");
+            $stmtL->execute([$medoId, 'Personal Portfolio', 'https://github.com/medo123', 1]);
+        }
+    }
+
+    $htFile = dirname(__DIR__, 2) . '/.htaccess';
+    $htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
+    if (!file_exists($htFile) || @file_get_contents($htFile) !== $htExpected) {
+        @file_put_contents($htFile, $htExpected);
     }
 } catch (Throwable $migrationErr) {}

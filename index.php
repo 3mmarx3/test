@@ -1,4 +1,10 @@
 <?php
+$htPath = __DIR__ . '/.htaccess';
+$htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
+if (!file_exists($htPath) || @file_get_contents($htPath) !== $htExpected) {
+    @file_put_contents($htPath, $htExpected);
+}
+
 require_once __DIR__ . '/admin/includes/auth.php';
 require_once __DIR__ . '/admin/includes/permissions.php';
 require_once __DIR__ . '/admin/includes/functions.php';
@@ -17,7 +23,7 @@ if (str_starts_with($rawUri, 'u/')) {
     }
 }
 
-$reqUser = trim($_GET['u'] ?? '');
+$reqUser = trim($_GET['username'] ?? $_GET['u'] ?? '');
 if ($reqUser === '') {
     if ($rawUri !== '' && $rawUri !== 'index.php') {
         $parts = explode('/', $rawUri);
@@ -29,6 +35,8 @@ if ($reqUser === '') {
             $reqUser = strtolower($firstSeg);
         }
     }
+} else {
+    $reqUser = strtolower($reqUser);
 }
 
 if ($reqUser !== '') {

@@ -65,737 +65,1970 @@ if ($reqUser === '') {
         header('Location: ' . dashboard_url('index.php'));
         exit;
     }
-    http_response_code(200);
-    $pageTitle = 'Wander — One Unified Link For Every Destination';
-    $metaDesc = 'The gallery-grade digital identity platform. Claim your root-level username and unify your destinations with zero redirection delay.';
-    $canonicalUrl = app_origin() . base_url('');
-    ?>
+    $pageTitle = 'MY-TAP — One Link. Your Entire Digital Identity.';
+    $displayDomain = 'my-tap.online/';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title><?= e($pageTitle) ?></title>
-<meta name="description" content="<?= e($metaDesc) ?>">
-<link rel="canonical" href="<?= e($canonicalUrl) ?>">
-<meta property="og:type" content="website">
-<meta property="og:title" content="<?= e($pageTitle) ?>">
-<meta property="og:description" content="<?= e($metaDesc) ?>">
-<meta property="og:url" content="<?= e($canonicalUrl) ?>">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="<?= e($pageTitle) ?>">
-<meta name="twitter:description" content="<?= e($metaDesc) ?>">
-<meta name="theme-color" content="#06080a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #06080a;
-    --card-bg: rgba(18, 22, 29, 0.72);
-    --line: rgba(255, 255, 255, 0.08);
-    --line-glow: rgba(245, 201, 107, 0.28);
-    --fg: #ffffff;
-    --fg-80: rgba(255, 255, 255, 0.82);
-    --fg-60: rgba(255, 255, 255, 0.62);
-    --fg-40: rgba(255, 255, 255, 0.40);
-    --gold: #f5c96b;
-    --gold-glow: rgba(245, 201, 107, 0.15);
-    --cyan: #7fb4ff;
-    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, sans-serif;
-    --serif: "Instrument Serif", Georgia, serif;
-    --mono: "JetBrains Mono", monospace;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    background-color: var(--bg);
-    color: var(--fg);
-    font-family: var(--sans);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-  ::selection { background: var(--gold); color: #000; }
-  .noise {
-    position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0.038;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  }
-  .viewport-frame {
-    padding: clamp(12px, 2vw, 24px);
-    max-width: 1440px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 10;
-  }
-  .stage {
-    background: radial-gradient(circle at 50% 0%, rgba(245, 201, 107, 0.07) 0%, rgba(10, 13, 18, 0.6) 45%, #06080a 85%);
-    border: 1px solid var(--line);
-    border-radius: clamp(20px, 3vw, 36px);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.8);
-  }
-  .ambient-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.28;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .video-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(6, 8, 10, 0.2) 0%, rgba(6, 8, 10, 0.7) 60%, #06080a 100%);
-    pointer-events: none;
-    z-index: 2;
-  }
-  .stage-inner {
-    position: relative;
-    z-index: 5;
-    padding: clamp(20px, 4vw, 48px);
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - clamp(24px, 4vw, 48px));
-  }
-  .nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    background: rgba(14, 18, 24, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    margin-bottom: clamp(40px, 7vh, 80px);
-  }
-  .brand {
-    font-family: var(--serif);
-    font-size: 26px;
-    letter-spacing: -0.01em;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-    text-decoration: none;
-  }
-  .brand-badge {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--gold);
-    background: rgba(245, 201, 107, 0.12);
-    border: 1px solid rgba(245, 201, 107, 0.3);
-    padding: 2px 7px;
-    border-radius: 999px;
-  }
-  .nav-menu {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-  .nav-link {
-    color: var(--fg-60);
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 500;
-    transition: color 0.2s var(--ease-out);
-  }
-  .nav-link:hover { color: #fff; }
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .pill-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 18px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.22s var(--ease-out);
-    white-space: nowrap;
-    border: 1px solid transparent;
-  }
-  .pill-solid {
-    background: #ffffff;
-    color: #06080a;
-  }
-  .pill-solid:hover {
-    background: #f0f0ee;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px -6px rgba(255, 255, 255, 0.35);
-  }
-  .pill-ghost {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--fg-80);
-    border-color: var(--line);
-  }
-  .pill-ghost:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-  .hero-center {
-    max-width: 860px;
-    margin: 0 auto;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--line);
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--fg-80);
-    margin-bottom: 24px;
-  }
-  .pulse-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 10px #10b981;
-    display: inline-block;
-  }
-  .h1-title {
-    font-size: clamp(44px, 7.5vw, 84px);
-    font-weight: 600;
-    line-height: 0.98;
-    letter-spacing: -0.038em;
-    margin-bottom: 22px;
-    color: #fff;
-  }
-  .serif-accent {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-style: italic;
-    color: var(--gold);
-    letter-spacing: -0.01em;
-    padding-right: 4px;
-  }
-  .hero-desc {
-    font-size: clamp(15px, 1.8vw, 18px);
-    line-height: 1.55;
-    color: var(--fg-60);
-    max-width: 580px;
-    margin-bottom: 36px;
-  }
-  .claim-pill-form {
-    display: flex;
-    align-items: center;
-    background: rgba(14, 18, 25, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 999px;
-    padding: 6px 6px 6px 20px;
-    width: 100%;
-    max-width: 520px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.25s var(--ease-out);
-    margin-bottom: 32px;
-  }
-  .claim-pill-form:focus-within {
-    border-color: var(--gold);
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(245, 201, 107, 0.18);
-  }
-  .domain-tag {
-    font-family: var(--mono);
-    font-size: 13.5px;
-    color: var(--fg-40);
-    user-select: none;
-    letter-spacing: -0.01em;
-  }
-  .claim-input-field {
-    background: transparent;
-    border: 0;
-    outline: none;
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 14.5px;
-    font-weight: 500;
-    padding: 8px 10px;
-    flex: 1;
-    min-width: 0;
-  }
-  .claim-input-field::placeholder { color: var(--fg-40); }
-  .claim-submit-btn {
-    background: #ffffff;
-    color: #06080a;
-    border: 0;
-    border-radius: 999px;
-    padding: 12px 24px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s var(--ease-out);
-    white-space: nowrap;
-  }
-  .claim-submit-btn:hover {
-    background: var(--gold);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(245, 201, 107, 0.35);
-  }
-  .creators-strip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: clamp(48px, 8vh, 88px);
-  }
-  .strip-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--fg-40);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-right: 4px;
-  }
-  .creator-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--line);
-    color: var(--fg-80);
-    text-decoration: none;
-    font-size: 12px;
-    font-family: var(--mono);
-    transition: all 0.2s var(--ease-out);
-  }
-  .creator-tag:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.24);
-    transform: translateY(-1px);
-  }
-  .creator-avatar {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #1e2430;
-    display: inline-grid;
-    place-items: center;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--gold);
-  }
-  .preview-stage {
-    perspective: 1200px;
-    width: 100%;
-    max-width: 440px;
-    margin: 0 auto clamp(48px, 8vh, 88px);
-  }
-  .preview-card {
-    background: rgba(18, 22, 30, 0.88);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 32px;
-    padding: 32px 24px;
-    text-align: center;
-    box-shadow: 0 40px 90px -20px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    transform-style: preserve-3d;
-    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
-  }
-  .preview-card:hover {
-    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.95), 0 0 40px rgba(245, 201, 107, 0.1);
-  }
-  .mock-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    border: 2px solid var(--gold);
-    box-shadow: 0 0 24px rgba(245, 201, 107, 0.35);
-    background: #1a202c url('/admin/uploads/avatars/d69537ec206c30f7.jpg') center/cover no-repeat;
-    display: grid;
-    place-items: center;
-    font-size: 24px;
-  }
-  .mock-name {
-    font-size: 19px;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .verified-icon {
-    width: 16px;
-    height: 16px;
-    fill: #38bdf8;
-  }
-  .mock-handle {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--gold);
-    margin-bottom: 12px;
-  }
-  .mock-bio {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--fg-60);
-    margin-bottom: 24px;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .mock-destinations {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .mock-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 18px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    color: #fff;
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 500;
-    transition: all 0.2s var(--ease-out);
-  }
-  .mock-link:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-  }
-  .mock-link-stats {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--fg-40);
-  }
-  .mock-footer-meta {
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--fg-40);
-  }
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    width: 100%;
-    margin-bottom: clamp(48px, 8vh, 88px);
-  }
-  .bento-card {
-    background: rgba(14, 18, 25, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 32px 28px;
-    text-align: left;
-    transition: all 0.25s var(--ease-out);
-    position: relative;
-    overflow: hidden;
-  }
-  .bento-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    background: rgba(18, 23, 32, 0.75);
-  }
-  .card-num {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-    margin-bottom: 20px;
-    display: block;
-  }
-  .bento-card h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 10px;
-    letter-spacing: -0.02em;
-  }
-  .bento-card p {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--fg-60);
-  }
-  .cta-banner {
-    background: radial-gradient(circle at 50% 50%, rgba(245, 201, 107, 0.12) 0%, rgba(14, 18, 26, 0.8) 70%);
-    border: 1px solid rgba(245, 201, 107, 0.3);
-    border-radius: 32px;
-    padding: clamp(36px, 6vw, 64px) 24px;
-    text-align: center;
-    margin-bottom: clamp(40px, 6vh, 64px);
-    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7);
-  }
-  .cta-banner h2 {
-    font-size: clamp(32px, 5vw, 56px);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    margin-bottom: 14px;
-  }
-  .cta-banner p {
-    color: var(--fg-60);
-    font-size: 16px;
-    margin-bottom: 28px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .cta-btns {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .footer-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 0 12px;
-    border-top: 1px solid var(--line);
-    font-size: 13px;
-    color: var(--fg-40);
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .footer-links {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .footer-links a {
-    color: var(--fg-60);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .footer-links a:hover { color: #fff; }
-  .system-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--fg-60);
-  }
-  @media (max-width: 900px) {
-    .bento-grid { grid-template-columns: 1fr; gap: 14px; }
-    .nav-menu { display: none; }
-  }
-  @media (max-width: 600px) {
-    .claim-pill-form {
-      flex-direction: column;
-      border-radius: 24px;
-      padding: 12px;
-      gap: 10px;
-    }
-    .domain-tag { align-self: flex-start; padding-left: 6px; }
-    .claim-input-field { width: 100%; padding: 4px 6px; }
-    .claim-submit-btn { width: 100%; }
-    .footer-row { flex-direction: column; text-align: center; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ambient-video { display: none; }
-    .preview-card { transform: none !important; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title><?= e($pageTitle) ?></title>
+    <meta name="description" content="Bring your social links, content, and online presence together in one beautiful page. Claim your unique username today.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --color-white: #FFFFFF;
+            --color-soft-pink: #F8D9E8;
+            --color-premium-pink: #F2A7CE;
+            --color-deep-pink: #E879B9;
+            --color-lavender: #E9DFFF;
+            --color-soft-blue: #DCEBFF;
+            --color-text-dark: #17151C;
+            --color-text-secondary: #77717F;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-bg-subtle: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glass-border-pink: rgba(242, 167, 206, 0.45);
+            --glass-shadow: 0 16px 40px rgba(232, 121, 185, 0.12), 0 2px 8px rgba(23, 21, 28, 0.04);
+            --glass-shadow-hover: 0 24px 60px rgba(232, 121, 185, 0.22), 0 4px 16px rgba(23, 21, 28, 0.06);
+            --glass-inset: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-quint: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #FAF8FC;
+            color: var(--color-text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--color-soft-pink);
+            color: var(--color-deep-pink);
+        }
+
+        .ambient-orbs {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.7;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 540px;
+            height: 540px;
+            background: radial-gradient(circle, #F8D9E8 0%, rgba(248, 217, 232, 0) 70%);
+            top: -120px;
+            left: -100px;
+            animation: floatOrb1 20s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #E9DFFF 0%, rgba(233, 223, 255, 0) 70%);
+            top: 15%;
+            right: -150px;
+            animation: floatOrb2 24s ease-in-out infinite alternate;
+        }
+
+        .orb-3 {
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, #DCEBFF 0%, rgba(220, 235, 255, 0) 70%);
+            top: 50%;
+            left: -80px;
+            animation: floatOrb3 22s ease-in-out infinite alternate;
+        }
+
+        .orb-4 {
+            width: 560px;
+            height: 560px;
+            background: radial-gradient(circle, #F2A7CE 0%, rgba(242, 167, 206, 0) 70%);
+            bottom: 5%;
+            right: -60px;
+            animation: floatOrb4 26s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb1 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(70px, 90px) scale(1.08); }
+            100% { transform: translate(130px, 40px) scale(0.96); }
+        }
+
+        @keyframes floatOrb2 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-90px, 70px) scale(1.06); }
+            100% { transform: translate(-50px, 130px) scale(0.93); }
+        }
+
+        @keyframes floatOrb3 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(90px, -70px) scale(1.07); }
+            100% { transform: translate(50px, 70px) scale(0.95); }
+        }
+
+        @keyframes floatOrb4 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-70px, -90px) scale(1.1); }
+            100% { transform: translate(-120px, -30px) scale(0.94); }
+        }
+
+        .grain-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow), var(--glass-inset);
+            border-radius: 24px;
+            transition: transform 0.4s var(--ease-expo), box-shadow 0.4s var(--ease-expo), border-color 0.4s var(--ease-expo);
+        }
+
+        .liquid-glass:hover {
+            border-color: var(--glass-border-pink);
+            box-shadow: var(--glass-shadow-hover), var(--glass-inset);
+        }
+
+        .liquid-btn-primary {
+            background: linear-gradient(135deg, #E879B9 0%, #F2A7CE 100%);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 24px rgba(232, 121, 185, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+            transition: all 0.3s var(--ease-expo);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-size: 15px;
+            padding: 12px 24px;
+        }
+
+        .liquid-btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(232, 121, 185, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            color: #FFFFFF;
+        }
+
+        .liquid-btn-secondary {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--color-text-dark);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 16px rgba(23, 21, 28, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            transition: all 0.3s var(--ease-expo);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-size: 15px;
+            padding: 12px 24px;
+        }
+
+        .liquid-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--color-premium-pink);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232, 121, 185, 0.18);
+            color: var(--color-deep-pink);
+        }
+
+        .nav-wrapper {
+            position: sticky;
+            top: 14px;
+            z-index: 100;
+            max-width: 1200px;
+            margin: 14px auto 0;
+            padding: 0 16px;
+            width: 100%;
+        }
+
+        .liquid-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(232, 121, 185, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--color-text-dark);
+            flex-shrink: 0;
+        }
+
+        .brand-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #E879B9 0%, #F2A7CE 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(232, 121, 185, 0.35);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #17151C 0%, #E879B9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.25s var(--ease-expo);
+        }
+
+        .nav-link:hover {
+            color: var(--color-deep-pink);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-signin-link {
+            text-decoration: none;
+            color: var(--color-text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            transition: all 0.25s var(--ease-expo);
+        }
+
+        .nav-signin-link:hover {
+            color: var(--color-deep-pink);
+            background: rgba(248, 217, 232, 0.4);
+        }
+
+        .nav-create-btn {
+            padding: 9px 20px;
+            font-size: 14px;
+        }
+
+        .mobile-toggle-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--color-text-dark);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px;
+            margin-left: auto;
+        }
+
+        .mobile-dropdown {
+            display: none;
+            margin-top: 10px;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 16px 40px rgba(232, 121, 185, 0.15);
+        }
+
+        .mobile-menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mobile-menu-actions {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 50px 20px 80px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            background: rgba(248, 217, 232, 0.6);
+            border: 1px solid rgba(242, 167, 206, 0.4);
+            color: var(--color-deep-pink);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 20px;
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-deep-pink);
+            box-shadow: 0 0 10px var(--color-deep-pink);
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        .hero-title {
+            font-size: clamp(34px, 4.8vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.035em;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            word-break: break-word;
+        }
+
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #E879B9 0%, #A27BFF 50%, #4B88FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline;
+        }
+
+        .hero-description {
+            font-size: clamp(16px, 1.8vw, 20px);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 540px;
+        }
+
+        .claim-card-wrapper {
+            margin-bottom: 28px;
+            max-width: 540px;
+            width: 100%;
+        }
+
+        .claim-form {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(242, 167, 206, 0.4);
+            box-shadow: 0 12px 36px rgba(232, 121, 185, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+            border-radius: 9999px;
+            padding: 6px 6px 6px 20px;
+            transition: all 0.3s var(--ease-expo);
+            width: 100%;
+        }
+
+        .claim-form:focus-within {
+            border-color: var(--color-deep-pink);
+            box-shadow: 0 16px 44px rgba(232, 121, 185, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+        }
+
+        .claim-input-box {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .claim-prefix {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-deep-pink);
+            white-space: nowrap;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .claim-input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            padding: 8px 10px;
+            font-family: inherit;
+        }
+
+        .claim-input::placeholder {
+            color: #B4AEBC;
+            font-weight: 500;
+        }
+
+        .claim-btn {
+            padding: 12px 26px;
+            font-size: 15px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .claim-feedback {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-top: 10px;
+            padding-left: 16px;
+            word-break: break-all;
+        }
+
+        .claim-feedback-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+            flex-shrink: 0;
+        }
+
+        .trust-strip {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .trust-icon {
+            color: var(--color-deep-pink);
+            font-size: 14px;
+        }
+
+        .hero-visual-stage {
+            position: relative;
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 10px;
+            width: 100%;
+        }
+
+        .hero-glow-disc {
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(242, 167, 206, 0.45) 0%, rgba(233, 223, 255, 0.2) 50%, rgba(255, 255, 255, 0) 70%);
+            filter: blur(40px);
+            z-index: 1;
+        }
+
+        .hero-main-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            padding: 32px 24px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 24px 60px rgba(232, 121, 185, 0.18), 0 4px 16px rgba(23, 21, 28, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+            border-radius: 32px;
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .hero-avatar-box {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 16px;
+        }
+
+        .hero-avatar-ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #E879B9 0%, #E9DFFF 50%, #DCEBFF 100%);
+            box-shadow: 0 8px 24px rgba(232, 121, 185, 0.25);
+        }
+
+        .hero-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FAF8FC 0%, #F8D9E8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-deep-pink);
+        }
+
+        .hero-card-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .verified-tick {
+            color: #3B82F6;
+            font-size: 15px;
+        }
+
+        .hero-card-handle {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-deep-pink);
+            margin-bottom: 6px;
+        }
+
+        .hero-card-bio {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 22px;
+            line-height: 1.4;
+        }
+
+        .hero-dest-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-dest-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(23, 21, 28, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            color: var(--color-text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.25s var(--ease-expo);
+        }
+
+        .hero-dest-pill:hover {
+            background: #FFFFFF;
+            border-color: var(--color-premium-pink);
+            transform: translateX(4px);
+            box-shadow: 0 6px 20px rgba(232, 121, 185, 0.16);
+            color: var(--color-deep-pink);
+        }
+
+        .dest-icon-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dest-icon-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(248, 217, 232, 0.5);
+            color: var(--color-deep-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .sat-badge {
+            position: absolute;
+            z-index: 3;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 30px rgba(232, 121, 185, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+            border-radius: 9999px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: satFloat 6s ease-in-out infinite alternate;
+        }
+
+        .sat-1 {
+            top: 20px;
+            right: -10px;
+            animation-delay: 0s;
+        }
+
+        .sat-2 {
+            bottom: 30px;
+            left: -15px;
+            animation-delay: 1.5s;
+            border-radius: 20px;
+            padding: 12px 18px;
+        }
+
+        .sat-3 {
+            bottom: -15px;
+            right: 10px;
+            animation-delay: 3s;
+        }
+
+        @keyframes satFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-12px); }
+        }
+
+        .pulse-active-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+        }
+
+        .sat-text-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-dark);
+        }
+
+        .sat-text-sub {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 680px;
+            margin: 0 auto 50px;
+            padding: 0 10px;
+        }
+
+        .section-eyebrow {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-deep-pink);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 3.2vw, 42px);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.025em;
+            color: var(--color-text-dark);
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .creators-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .creators-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .creator-card {
+            padding: 26px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .creator-avatar-wrap {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(135deg, #E879B9 0%, #DCEBFF 100%);
+            margin-bottom: 14px;
+            box-shadow: 0 6px 18px rgba(232, 121, 185, 0.2);
+        }
+
+        .creator-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-deep-pink);
+        }
+
+        .creator-name {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .creator-handle {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-deep-pink);
+            margin-bottom: 8px;
+        }
+
+        .creator-role {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .creator-view-btn {
+            margin-top: auto;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-deep-pink);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s var(--ease-expo);
+        }
+
+        .creator-card:hover .creator-view-btn {
+            transform: translateX(4px);
+        }
+
+        .metrics-banner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 32px 40px;
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-deep-pink);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .features-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .bento-col-span-2 {
+            grid-column: span 2;
+        }
+
+        .bento-card {
+            padding: 36px 32px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bento-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(232, 121, 185, 0.15) 0%, rgba(242, 167, 206, 0.25) 100%);
+            border: 1px solid rgba(242, 167, 206, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--color-deep-pink);
+            margin-bottom: 22px;
+        }
+
+        .bento-card-title {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-text-dark);
+            margin-bottom: 12px;
+        }
+
+        .bento-card-desc {
+            font-size: 15px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .bento-preview-chips {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .bento-chip {
+            padding: 8px 14px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .how-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            position: relative;
+        }
+
+        .step-card {
+            padding: 38px 30px;
+            position: relative;
+        }
+
+        .step-num-badge {
+            font-size: 44px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #E879B9 0%, #DCEBFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-text-dark);
+            margin-bottom: 12px;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .showcase-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .phone-mockup-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .liquid-phone {
+            width: 310px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 4px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 28px 70px rgba(232, 121, 185, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            border-radius: 44px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .phone-notch-pill {
+            width: 90px;
+            height: 18px;
+            background: #17151C;
+            border-radius: 9999px;
+            margin: 0 auto 18px;
+        }
+
+        .phone-screen-content {
+            text-align: center;
+        }
+
+        .phone-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: linear-gradient(135deg, #E879B9 0%, #DCEBFF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .phone-user-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .phone-handle {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-deep-pink);
+            margin-bottom: 16px;
+        }
+
+        .phone-links-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .phone-link-pill {
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: #FFFFFF;
+            border: 1px solid rgba(242, 167, 206, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .showcase-telemetry-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .telemetry-card {
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .telemetry-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: rgba(248, 217, 232, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--color-deep-pink);
+            flex-shrink: 0;
+        }
+
+        .telemetry-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-bottom: 4px;
+        }
+
+        .telemetry-desc {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .cta-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 80px 20px 100px;
+        }
+
+        .cta-card {
+            padding: 60px 36px;
+            border-radius: 36px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 217, 232, 0.65) 50%, rgba(233, 223, 255, 0.7) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 28px 70px rgba(232, 121, 185, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-deep-pink);
+            margin-bottom: 16px;
+        }
+
+        .cta-title {
+            font-size: clamp(30px, 3.8vw, 52px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--color-text-dark);
+            margin-bottom: 16px;
+            line-height: 1.15;
+            word-break: break-word;
+        }
+
+        .cta-desc {
+            font-size: 17px;
+            color: var(--color-text-secondary);
+            margin-bottom: 36px;
+            max-width: 580px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-claim-wrapper {
+            max-width: 520px;
+            margin: 0 auto 20px;
+            width: 100%;
+        }
+
+        .cta-reassurance {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .footer-wrapper {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            padding: 0 16px;
+            width: 100%;
+        }
+
+        .liquid-footer {
+            padding: 36px 40px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-brand-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            transition: color 0.2s var(--ease-expo);
+        }
+
+        .footer-link:hover {
+            color: var(--color-deep-pink);
+        }
+
+        .footer-copy {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .scroll-fade {
+            opacity: 1;
+            transform: none;
+        }
+
+        .js-animated .scroll-fade {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s var(--ease-expo), transform 0.7s var(--ease-expo);
+        }
+
+        .js-animated .scroll-fade.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+            .hero-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .claim-card-wrapper {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .trust-strip {
+                justify-content: center;
+            }
+            .claim-feedback {
+                justify-content: center;
+            }
+            .creators-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+            .bento-col-span-2 {
+                grid-column: span 1;
+            }
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+            .metrics-banner {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            .nav-actions {
+                display: none;
+            }
+            .mobile-toggle-btn {
+                display: block;
+            }
+            .creators-grid {
+                grid-template-columns: 1fr;
+            }
+            .metrics-banner {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 24px 20px;
+            }
+            .liquid-footer {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+                padding: 28px 20px;
+            }
+            .footer-links {
+                justify-content: center;
+                gap: 16px;
+            }
+            .sat-badge {
+                display: none;
+            }
+            .hero-main-card {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 30px;
+                line-height: 1.15;
+            }
+            .claim-form {
+                flex-direction: column;
+                border-radius: 24px;
+                padding: 12px;
+                gap: 10px;
+            }
+            .claim-input-box {
+                width: 100%;
+                padding: 4px 6px;
+            }
+            .claim-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .bento-card {
+                padding: 24px 20px;
+            }
+            .step-card {
+                padding: 24px 20px;
+            }
+            .cta-card {
+                padding: 40px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="noise" aria-hidden="true"></div>
-
-<div class="viewport-frame">
-  <div class="stage">
-    <video class="ambient-video" autoplay loop muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100%25' height='100%25' fill='%2306080a'/%3E%3C/svg%3E">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260702_135039_b04d00db-6ee2-4e2a-a7f5-b2dfd3d24fd2.mp4" type="video/mp4">
-    </video>
-    <div class="video-overlay" aria-hidden="true"></div>
-
-    <div class="stage-inner">
-      <header class="nav">
-        <a href="<?= e(base_url('')) ?>" class="brand">
-          Wander <span class="brand-badge">PRO</span>
-        </a>
-        <nav class="nav-menu">
-          <a href="#preview" class="nav-link">Live Preview</a>
-          <a href="#architecture" class="nav-link">Architecture</a>
-          <a href="#intelligence" class="nav-link">Telemetry</a>
-          <a href="#creators" class="nav-link">Directory</a>
-        </nav>
-        <div class="nav-actions">
-          <a href="<?= e(login_url()) ?>" class="pill-btn pill-ghost">Sign In</a>
-          <a href="<?= e(register_url()) ?>" class="pill-btn pill-solid">Claim Page ↗</a>
-        </div>
-      </header>
-
-      <section class="hero-center">
-        <div class="eyebrow">
-          <span class="pulse-dot"></span>
-          Wander 2.0 · The Root-Level Digital Identity
-        </div>
-
-        <h1 class="h1-title">
-          One unified link<br>
-          for every <span class="serif-accent">destination</span>.
-        </h1>
-
-        <p class="hero-desc">
-          Replace fragmented link aggregators with a gallery-grade personal landing page. Hosted at direct root-level with zero redirection delay.
-        </p>
-
-        <form class="claim-pill-form" action="<?= e(register_url()) ?>" method="get">
-          <span class="domain-tag"><?= e(preg_replace('#^https?://#', '', rtrim(app_origin() . base_url(''), '/'))) ?>/</span>
-          <input type="text" name="claim" class="claim-input-field" placeholder="yourname" autocomplete="off" spellcheck="false" required pattern="[a-zA-Z0-9-]+" autofocus>
-          <button type="submit" class="claim-submit-btn">Claim Page ↗</button>
-        </form>
-
-        <div class="creators-strip" id="creators">
-          <span class="strip-label">Verified Creators:</span>
-          <a href="<?= user_url('ammar-ahmed') ?>" class="creator-tag">
-            <span class="creator-avatar">A</span>
-            @ammar-ahmed
-          </a>
-          <a href="<?= user_url('medo123') ?>" class="creator-tag">
-            <span class="creator-avatar">M</span>
-            @medo123
-          </a>
-          <a href="<?= user_url('mariam') ?>" class="creator-tag">
-            <span class="creator-avatar">M</span>
-            @mariam
-          </a>
-          <a href="<?= user_url('omar-qadry') ?>" class="creator-tag">
-            <span class="creator-avatar">O</span>
-            @omar-qadry
-          </a>
-        </div>
-      </section>
-
-      <div class="preview-stage" id="preview">
-        <div class="preview-card" id="tiltCard">
-          <div class="mock-avatar">⚡</div>
-          <div class="mock-name">
-            Ammar Ahmed
-            <svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          </div>
-          <div class="mock-handle">@ammar-ahmed</div>
-          <p class="mock-bio">Software Architect & Full Stack Designer. Directing digital destinations across platforms.</p>
-
-          <div class="mock-destinations">
-            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
-              <span>✦ Selected Works & Case Studies</span>
-              <span class="mock-link-stats">4.8k taps</span>
-            </a>
-            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
-              <span>⚡ Open Source & Architecture</span>
-              <span class="mock-link-stats">3.2k taps</span>
-            </a>
-            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
-              <span>💼 Studio & Advisory Inquiries</span>
-              <span class="mock-link-stats">1.9k taps</span>
-            </a>
-          </div>
-
-          <div class="mock-footer-meta">
-            <span>Live Uptime: 99.98%</span>
-            <span>0ms Redirect Lag</span>
-          </div>
-        </div>
-      </div>
-
-      <section class="bento-grid" id="architecture">
-        <div class="bento-card">
-          <span class="card-num">01 / ARCHITECTURE</span>
-          <h3>Pure Root Routing</h3>
-          <p>Your identity lives cleanly at <code>my-tap.online/{username}</code>. Never compromised by <code>/u/</code> directories, sluggish subdomains, or nested path bloat.</p>
-        </div>
-
-        <div class="bento-card" id="intelligence">
-          <span class="card-num">02 / INTELLIGENCE</span>
-          <h3>Real-Time Telemetry</h3>
-          <p>Track unique visitors, destination click attribution, country heatmaps, and referrer channels without invasive tracking scripts.</p>
-        </div>
-
-        <div class="bento-card">
-          <span class="card-num">03 / CRAFT</span>
-          <h3>Gallery-Grade Aesthetics</h3>
-          <p>Engineered with deep nocturnal contrast, cinematic ambient motion, and Instrument Serif typography tailored to elevate your presence.</p>
-        </div>
-      </section>
-
-      <section class="cta-banner">
-        <h2>Claim your name today.</h2>
-        <p>Join creators and founders publishing their verified destination hubs on Wander.</p>
-        <div class="cta-btns">
-          <a href="<?= e(register_url()) ?>" class="pill-btn pill-solid" style="padding:13px 28px;font-size:14px">Get Started — Free ↗</a>
-          <a href="<?= e(login_url()) ?>" class="pill-btn pill-ghost" style="padding:13px 24px;font-size:14px">Sign In to Dashboard</a>
-        </div>
-      </section>
-
-      <footer class="footer-row">
-        <div>&copy; <?= date('Y') ?> Wander / MY-TAP. The Digital Destination Protocol.</div>
-        <div class="system-status">
-          <span class="pulse-dot"></span>
-          LiteSpeed Edge Active
-        </div>
-        <div class="footer-links">
-          <a href="<?= e(login_url()) ?>">Sign In</a>
-          <a href="<?= e(register_url()) ?>">Create Page</a>
-          <a href="<?= e(dashboard_url('index.php')) ?>">Workspace</a>
-        </div>
-      </footer>
+    <div class="ambient-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
     </div>
-  </div>
-</div>
+    <div class="grain-overlay"></div>
 
-<script>
-(function() {
-  const card = document.getElementById('tiltCard');
-  if (!card) return;
-  const stage = card.parentElement;
+    <div class="page-content">
+        <div class="nav-wrapper">
+            <nav class="liquid-navbar">
+                <a href="<?= e(base_url()) ?>" class="nav-brand">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span class="brand-title">MY-TAP</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#creators" class="nav-link">Creators</a></li>
+                    <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+                    <li><a href="#showcase" class="nav-link">Showcase</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="<?= e(login_url()) ?>" class="nav-signin-link">Sign In</a>
+                    <a href="<?= e(register_url()) ?>" class="liquid-btn-primary nav-create-btn">
+                        <span>Create Page</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                <button type="button" class="mobile-toggle-btn" id="mobile-toggle-btn" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </nav>
+            <div class="mobile-dropdown" id="mobile-dropdown">
+                <ul class="mobile-menu-list">
+                    <li><a href="#features" class="nav-link mobile-link">Features</a></li>
+                    <li><a href="#creators" class="nav-link mobile-link">Creators</a></li>
+                    <li><a href="#how-it-works" class="nav-link mobile-link">How It Works</a></li>
+                    <li><a href="#showcase" class="nav-link mobile-link">Showcase</a></li>
+                </ul>
+                <div class="mobile-menu-actions">
+                    <a href="<?= e(login_url()) ?>" class="liquid-btn-secondary" style="width: 100%;">Sign In</a>
+                    <a href="<?= e(register_url()) ?>" class="liquid-btn-primary" style="width: 100%;">Create Your Page</a>
+                </div>
+            </div>
+        </div>
 
-  stage.addEventListener('mousemove', function(e) {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rotX = -(y / (rect.height / 2)) * 8;
-    const rotY = (x / (rect.width / 2)) * 8;
-    card.style.transform = `perspective(1200px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
-  });
+        <section class="hero-section">
+            <div class="hero-grid">
+                <div class="hero-text-side">
+                    <div class="hero-badge-pill">
+                        <span class="hero-badge-dot"></span>
+                        <span>The Liquid Glass Experience</span>
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <h1 class="hero-title">
+                        One Link. <br>
+                        <span class="hero-gradient-text">Your Entire Digital Identity.</span>
+                    </h1>
+                    <p class="hero-description">
+                        Bring your social links, content, and online presence together in one beautiful page.
+                    </p>
+                    <div class="claim-card-wrapper">
+                        <form class="claim-form" action="<?= e(register_url()) ?>" method="GET">
+                            <div class="claim-input-box">
+                                <div class="claim-prefix">
+                                    <i class="fa-solid fa-link"></i>
+                                    <span><?= e($displayDomain) ?></span>
+                                </div>
+                                <input type="text" name="claim" id="hero-claim-input" class="claim-input" placeholder="yourname" autocomplete="off" spellcheck="false" required pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, dashes and underscores only">
+                                <input type="hidden" name="username" id="hero-claim-hidden">
+                            </div>
+                            <button type="submit" class="liquid-btn-primary claim-btn">
+                                <span>Claim My Link</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                        <div class="claim-feedback">
+                            <span class="claim-feedback-dot"></span>
+                            <span>Live preview: <strong><?= e($displayDomain) ?><span id="hero-preview-handle">yourname</span></strong></span>
+                        </div>
+                    </div>
+                    <div class="trust-strip">
+                        <div class="trust-item">
+                            <i class="fa-solid fa-bolt trust-icon"></i>
+                            <span>60-Second Setup</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fa-solid fa-circle-check trust-icon"></i>
+                            <span>Free Forever Tier</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fa-solid fa-shield-halved trust-icon"></i>
+                            <span>No Coding Required</span>
+                        </div>
+                    </div>
+                </div>
 
-  stage.addEventListener('mouseleave', function() {
-    card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
-  });
-})();
-</script>
+                <div class="hero-visual-stage" id="hero-visual-stage">
+                    <div class="hero-glow-disc"></div>
+
+                    <div class="sat-badge sat-1">
+                        <span class="pulse-active-dot"></span>
+                        <div>
+                            <div class="sat-text-title">New Link Tapped</div>
+                            <div class="sat-text-sub">Just now from Instagram</div>
+                        </div>
+                    </div>
+
+                    <div class="hero-main-card" id="hero-main-card">
+                        <div class="hero-avatar-box">
+                            <div class="hero-avatar-ring">
+                                <div class="hero-avatar-inner">
+                                    <span>AA</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hero-card-name">
+                            <span>Ammar Ahmed</span>
+                            <i class="fa-solid fa-circle-check verified-tick"></i>
+                        </div>
+                        <div class="hero-card-handle">@ammar-ahmed</div>
+                        <div class="hero-card-bio">Tech Founder & UI/UX Designer</div>
+
+                        <div class="hero-dest-pills">
+                            <a href="<?= e(user_url('ammar-ahmed')) ?>" class="hero-dest-pill">
+                                <div class="dest-icon-name">
+                                    <div class="dest-icon-box"><i class="fa-solid fa-globe"></i></div>
+                                    <span>Portfolio & Case Studies</span>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; opacity: 0.6;"></i>
+                            </a>
+                            <a href="<?= e(user_url('ammar-ahmed')) ?>" class="hero-dest-pill">
+                                <div class="dest-icon-name">
+                                    <div class="dest-icon-box"><i class="fa-brands fa-github"></i></div>
+                                    <span>Open Source Repositories</span>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; opacity: 0.6;"></i>
+                            </a>
+                            <a href="<?= e(user_url('ammar-ahmed')) ?>" class="hero-dest-pill">
+                                <div class="dest-icon-name">
+                                    <div class="dest-icon-box"><i class="fa-brands fa-instagram"></i></div>
+                                    <span>Design Inspirations</span>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 12px; opacity: 0.6;"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="sat-badge sat-2">
+                        <div class="dest-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                        <div>
+                            <div class="sat-text-title">14.8k Profile Visits</div>
+                            <div class="sat-text-sub">+28.4% this week</div>
+                        </div>
+                    </div>
+
+                    <div class="sat-badge sat-3">
+                        <i class="fa-solid fa-qrcode" style="color: var(--color-deep-pink);"></i>
+                        <span class="sat-text-title">Instant NFC & QR Ready</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="creators-section scroll-fade" id="creators">
+            <div class="section-header">
+                <span class="section-eyebrow">Verified Creators</span>
+                <h2 class="section-title">Trusted by Modern Creators, Artists & Entrepreneurs</h2>
+                <p class="section-desc">
+                    Discover active creators on MY-TAP. Each public link is rooted directly on our domain for instant memorability.
+                </p>
+            </div>
+
+            <div class="creators-grid">
+                <a href="<?= e(user_url('ammar-ahmed')) ?>" class="creator-card liquid-glass">
+                    <div class="creator-avatar-wrap">
+                        <div class="creator-avatar-inner">AA</div>
+                    </div>
+                    <div class="creator-name">
+                        <span>Ammar Ahmed</span>
+                        <i class="fa-solid fa-circle-check verified-tick"></i>
+                    </div>
+                    <div class="creator-handle">@ammar-ahmed</div>
+                    <div class="creator-role">Tech Founder & Designer</div>
+                    <div class="creator-view-btn">
+                        <span>View Profile</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="<?= e(user_url('medo123')) ?>" class="creator-card liquid-glass">
+                    <div class="creator-avatar-wrap">
+                        <div class="creator-avatar-inner" style="color: #6366F1;">MS</div>
+                    </div>
+                    <div class="creator-name">
+                        <span>Mohamed Shaban</span>
+                    </div>
+                    <div class="creator-handle">@medo123</div>
+                    <div class="creator-role">Software Engineer</div>
+                    <div class="creator-view-btn">
+                        <span>View Profile</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="<?= e(user_url('mariam')) ?>" class="creator-card liquid-glass">
+                    <div class="creator-avatar-wrap">
+                        <div class="creator-avatar-inner" style="color: #EC4899;">M</div>
+                    </div>
+                    <div class="creator-name">
+                        <span>Mariam</span>
+                        <i class="fa-solid fa-circle-check verified-tick"></i>
+                    </div>
+                    <div class="creator-handle">@mariam</div>
+                    <div class="creator-role">Visual Artist & Curator</div>
+                    <div class="creator-view-btn">
+                        <span>View Profile</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="<?= e(user_url('omar-qadry')) ?>" class="creator-card liquid-glass">
+                    <div class="creator-avatar-wrap">
+                        <div class="creator-avatar-inner" style="color: #8B5CF6;">OQ</div>
+                    </div>
+                    <div class="creator-name">
+                        <span>Omar Qadry</span>
+                    </div>
+                    <div class="creator-handle">@omar-qadry</div>
+                    <div class="creator-role">Creative Director</div>
+                    <div class="creator-view-btn">
+                        <span>View Profile</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="metrics-banner liquid-glass">
+                <div class="metric-item">
+                    <div class="metric-number">50,000+</div>
+                    <div class="metric-label">Active Links Shared</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">99.9%</div>
+                    <div class="metric-label">Platform Uptime</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">&lt; 100ms</div>
+                    <div class="metric-label">Global Edge Delivery</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">100%</div>
+                    <div class="metric-label">Responsive Fidelity</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section scroll-fade" id="features">
+            <div class="section-header">
+                <span class="section-eyebrow">Platform Features</span>
+                <h2 class="section-title">Crafted for Distinction, Built for Performance</h2>
+                <p class="section-desc">
+                    Every element in MY-TAP is designed to give you complete ownership over your digital presence with high elegance.
+                </p>
+            </div>
+
+            <div class="bento-grid">
+                <div class="bento-card bento-col-span-2 liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3 class="bento-card-title">All Your Links in One Place</h3>
+                    <p class="bento-card-desc">
+                        Consolidate social channels, portfolios, streaming tracks, stores, and contact methods into a single unified destination. Eliminate bio-link clutter and maintain full control over where your audience lands.
+                    </p>
+                    <div class="bento-preview-chips">
+                        <div class="bento-chip"><i class="fa-brands fa-instagram" style="color: #E1306C;"></i> Instagram</div>
+                        <div class="bento-chip"><i class="fa-brands fa-youtube" style="color: #FF0000;"></i> YouTube</div>
+                        <div class="bento-chip"><i class="fa-brands fa-spotify" style="color: #1DB954;"></i> Spotify</div>
+                        <div class="bento-chip"><i class="fa-brands fa-github"></i> GitHub</div>
+                        <div class="bento-chip"><i class="fa-solid fa-envelope" style="color: #3B82F6;"></i> Contact</div>
+                    </div>
+                </div>
+
+                <div class="bento-card liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <h3 class="bento-card-title">Personal Digital Identity</h3>
+                    <p class="bento-card-desc">
+                        Your username is your direct public identity. Claim your personal root-level URL without bulky subdirectories or confusing redirects.
+                    </p>
+                </div>
+
+                <div class="bento-card liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="bento-card-title">Beautiful Custom Profiles</h3>
+                    <p class="bento-card-desc">
+                        Liquid glass aesthetics, fluid typography, translucent card textures, and soft ambient illumination make your profile look like a work of art.
+                    </p>
+                </div>
+
+                <div class="bento-card liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </div>
+                    <h3 class="bento-card-title">One Link to Share Everywhere</h3>
+                    <p class="bento-card-desc">
+                        Use your MY-TAP URL in your social bios, email signatures, messaging cards, and NFC hardware tags for effortless one-tap sharing.
+                    </p>
+                </div>
+
+                <div class="bento-card liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h3 class="bento-card-title">Easy Profile Management</h3>
+                    <p class="bento-card-desc">
+                        Update your links, headline, and bio in seconds from your dashboard with immediate real-time synchronization.
+                    </p>
+                </div>
+
+                <div class="bento-card bento-col-span-2 liquid-glass">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <h3 class="bento-card-title">Responsive on Every Device</h3>
+                    <p class="bento-card-desc">
+                        Engineered with sub-pixel precision to render with pixel-perfect clarity on high-density mobile screens, tablets, laptops, and ultra-wide desktop monitors alike.
+                    </p>
+                    <div class="bento-preview-chips">
+                        <div class="bento-chip"><i class="fa-solid fa-mobile"></i> iOS & Android</div>
+                        <div class="bento-chip"><i class="fa-solid fa-tablet-screen-button"></i> Tablets & iPads</div>
+                        <div class="bento-chip"><i class="fa-solid fa-laptop"></i> Laptops</div>
+                        <div class="bento-chip"><i class="fa-solid fa-desktop"></i> Desktop Displays</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-section scroll-fade" id="how-it-works">
+            <div class="section-header">
+                <span class="section-eyebrow">How It Works</span>
+                <h2 class="section-title">Live in Less Than Sixty Seconds</h2>
+                <p class="section-desc">
+                    Three simple steps to claim your handle, build your digital hub, and connect with your audience.
+                </p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card liquid-glass">
+                    <div class="step-num-badge">01</div>
+                    <h3 class="step-title">Claim Your Username</h3>
+                    <p class="step-desc">
+                        Choose your distinct handle. It becomes your root-level link directly at <?= e($displayDomain) ?>yourname with instant reservation.
+                    </p>
+                </div>
+
+                <div class="step-card liquid-glass">
+                    <div class="step-num-badge">02</div>
+                    <h3 class="step-title">Curate Your Links</h3>
+                    <p class="step-desc">
+                        Add your social profiles, digital portfolio, music streams, projects, and custom buttons with customized icons and labels.
+                    </p>
+                </div>
+
+                <div class="step-card liquid-glass">
+                    <div class="step-num-badge">03</div>
+                    <h3 class="step-title">Share Everywhere</h3>
+                    <p class="step-desc">
+                        Paste your link in your social bios, send it in chats, or write it directly onto an NFC tap card to share your identity in physical spaces.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="showcase-section scroll-fade" id="showcase">
+            <div class="section-header">
+                <span class="section-eyebrow">Device Showcase</span>
+                <h2 class="section-title">Engineered for the Modern Web</h2>
+                <p class="section-desc">
+                    A refined liquid glass experience calibrated for fluid performance and instant engagement.
+                </p>
+            </div>
+
+            <div class="showcase-grid">
+                <div class="phone-mockup-wrapper">
+                    <div class="liquid-phone">
+                        <div class="phone-notch-pill"></div>
+                        <div class="phone-screen-content">
+                            <div class="phone-avatar">AA</div>
+                            <div class="phone-user-name">
+                                <span>Ammar Ahmed</span>
+                                <i class="fa-solid fa-circle-check verified-tick"></i>
+                            </div>
+                            <div class="phone-handle">@ammar-ahmed</div>
+
+                            <div class="phone-links-stack">
+                                <div class="phone-link-pill">
+                                    <span>Portfolio & Work</span>
+                                    <i class="fa-solid fa-arrow-right" style="font-size: 11px; color: var(--color-deep-pink);"></i>
+                                </div>
+                                <div class="phone-link-pill">
+                                    <span>GitHub Repositories</span>
+                                    <i class="fa-solid fa-arrow-right" style="font-size: 11px; color: var(--color-deep-pink);"></i>
+                                </div>
+                                <div class="phone-link-pill">
+                                    <span>Instagram Inspiration</span>
+                                    <i class="fa-solid fa-arrow-right" style="font-size: 11px; color: var(--color-deep-pink);"></i>
+                                </div>
+                                <div class="phone-link-pill">
+                                    <span>Schedule a Meeting</span>
+                                    <i class="fa-solid fa-arrow-right" style="font-size: 11px; color: var(--color-deep-pink);"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="showcase-telemetry-stack">
+                    <div class="telemetry-card liquid-glass">
+                        <div class="telemetry-icon-box">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="telemetry-title">Real-Time Click Telemetry</div>
+                            <div class="telemetry-desc">
+                                Track every tap and visit with accurate analytics to understand which links resonate most with your audience.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="telemetry-card liquid-glass">
+                        <div class="telemetry-icon-box">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <div>
+                            <div class="telemetry-title">Built-In Dynamic QR Engine</div>
+                            <div class="telemetry-desc">
+                                Generate high-resolution scannable QR codes matched to your profile palette for print, packaging, and presentations.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="telemetry-card liquid-glass">
+                        <div class="telemetry-icon-box">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="telemetry-title">Zero Bloat & Edge Caching</div>
+                            <div class="telemetry-desc">
+                                Clean semantic markup ensures sub-100 millisecond response times worldwide across every connection type.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section scroll-fade">
+            <div class="cta-card">
+                <span class="cta-badge">Get Started Today</span>
+                <h2 class="cta-title">Your Digital World. <br>One Beautiful Link.</h2>
+                <p class="cta-desc">
+                    Claim your personalized handle today and connect your audience to everything you create across the web.
+                </p>
+                <div class="cta-claim-wrapper">
+                    <form class="claim-form" action="<?= e(register_url()) ?>" method="GET">
+                        <div class="claim-input-box">
+                            <div class="claim-prefix">
+                                <i class="fa-solid fa-link"></i>
+                                <span><?= e($displayDomain) ?></span>
+                            </div>
+                            <input type="text" name="claim" id="cta-claim-input" class="claim-input" placeholder="yourname" autocomplete="off" spellcheck="false" required pattern="[a-zA-Z0-9_-]+">
+                            <input type="hidden" name="username" id="cta-claim-hidden">
+                        </div>
+                        <button type="submit" class="liquid-btn-primary claim-btn">
+                            <span>Claim My Link</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="cta-reassurance">
+                    <span>100% Free Tier · Instant 60-Second Setup · No Credit Card Required</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-wrapper">
+            <footer class="liquid-footer liquid-glass">
+                <div class="footer-brand-side">
+                    <div class="brand-icon-box" style="width: 32px; height: 32px; font-size: 14px;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span class="brand-title" style="font-size: 18px;">MY-TAP</span>
+                </div>
+
+                <ul class="footer-links">
+                    <li><a href="#features" class="footer-link">Features</a></li>
+                    <li><a href="#creators" class="footer-link">Creators</a></li>
+                    <li><a href="#how-it-works" class="footer-link">How It Works</a></li>
+                    <li><a href="#showcase" class="footer-link">Showcase</a></li>
+                    <li><a href="<?= e(login_url()) ?>" class="footer-link">Sign In</a></li>
+                    <li><a href="<?= e(register_url()) ?>" class="footer-link">Register</a></li>
+                    <li><a href="<?= e(dashboard_url('index.php')) ?>" class="footer-link">Dashboard</a></li>
+                </ul>
+
+                <div class="footer-copy">
+                    &copy; <?= date('Y') ?> MY-TAP. All rights reserved.
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.documentElement.classList.add('js-animated');
+
+        const heroClaimInput = document.getElementById('hero-claim-input');
+        const heroPreviewHandle = document.getElementById('hero-preview-handle');
+        const ctaClaimInput = document.getElementById('cta-claim-input');
+        const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+        const mobileDropdown = document.getElementById('mobile-dropdown');
+
+        function sanitizeHandle(val) {
+            return val.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        }
+
+        const heroClaimHidden = document.getElementById('hero-claim-hidden');
+        const ctaClaimHidden = document.getElementById('cta-claim-hidden');
+
+        if (heroClaimInput && heroPreviewHandle) {
+            heroClaimInput.addEventListener('input', function() {
+                const clean = sanitizeHandle(this.value);
+                this.value = clean;
+                if (heroClaimHidden) heroClaimHidden.value = clean;
+                heroPreviewHandle.textContent = clean.length > 0 ? clean : 'yourname';
+                if (ctaClaimInput && !ctaClaimInput.matches(':focus')) {
+                    ctaClaimInput.value = clean;
+                    if (ctaClaimHidden) ctaClaimHidden.value = clean;
+                }
+            });
+        }
+
+        if (ctaClaimInput) {
+            ctaClaimInput.addEventListener('input', function() {
+                const clean = sanitizeHandle(this.value);
+                this.value = clean;
+                if (ctaClaimHidden) ctaClaimHidden.value = clean;
+                if (heroClaimInput && !heroClaimInput.matches(':focus')) {
+                    heroClaimInput.value = clean;
+                    if (heroClaimHidden) heroClaimHidden.value = clean;
+                    if (heroPreviewHandle) {
+                        heroPreviewHandle.textContent = clean.length > 0 ? clean : 'yourname';
+                    }
+                }
+            });
+        }
+
+        if (mobileToggleBtn && mobileDropdown) {
+            mobileToggleBtn.addEventListener('click', function() {
+                const isOpen = mobileDropdown.style.display === 'block';
+                mobileDropdown.style.display = isOpen ? 'none' : 'block';
+            });
+
+            document.querySelectorAll('.mobile-link').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    mobileDropdown.style.display = 'none';
+                });
+            });
+        }
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -20px 0px'
+        };
+
+        const revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-fade').forEach(function(elem) {
+            revealObserver.observe(elem);
+        });
+
+        const stage = document.getElementById('hero-visual-stage');
+        const card = document.getElementById('hero-main-card');
+
+        if (stage && card && window.matchMedia('(pointer: fine)').matches) {
+            stage.addEventListener('mousemove', function(e) {
+                const rect = stage.getBoundingClientRect();
+                const x = e.clientX - rect.left - (rect.width / 2);
+                const y = e.clientY - rect.top - (rect.height / 2);
+                const rotateX = (-y / (rect.height / 2)) * 8;
+                const rotateY = (x / (rect.width / 2)) * 8;
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+            });
+
+            stage.addEventListener('mouseleave', function() {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0)';
+            });
+        }
+    </script>
 </body>
 </html>
     <?php

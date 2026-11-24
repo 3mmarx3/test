@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/database.php';
+require_once dirname(__DIR__) . '/admin/includes/database.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

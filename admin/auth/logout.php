@@ -1,6 +1,12 @@
 <?php
 require_once dirname(__DIR__) . '/includes/auth.php';
 require_once dirname(__DIR__) . '/includes/config.php';
+require_once dirname(__DIR__) . '/includes/functions.php';
+
+$uid = (int)($_SESSION['uid'] ?? 0);
+if ($uid > 0) {
+    log_audit('logout', 'user', $uid, 'User logged out');
+}
 
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {

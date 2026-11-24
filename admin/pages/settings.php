@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $stmt = $pdo->prepare('UPDATE users SET email = ? WHERE id = ?');
                 $stmt->execute([$email, $userId]);
+                log_audit('update_email', 'user', $userId, 'Email updated to ' . $email);
+                create_notification($userId, 'Security Alert', 'Your account email was successfully updated.', 'info');
                 flash('Email updated.');
             }
         } else {
@@ -46,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newHash = password_hash($newPass, PASSWORD_DEFAULT);
             $stmtUpdate = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
             $stmtUpdate->execute([$newHash, $userId]);
+            log_audit('change_password', 'user', $userId, 'Password successfully updated');
+            create_notification($userId, 'Security Alert', 'Your account password was successfully changed.', 'warning');
             flash('Password updated.');
         }
         header('Location: ' . page_url('settings.php'));
@@ -76,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        log_audit('delete_account', 'user', $userId, 'Self-service account deletion for @' . $currentUser['username']);
         $stmtDel = $pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmtDel->execute([$userId]);
 
@@ -116,7 +121,11 @@ include dirname(__DIR__) . '/includes/header.php';
           <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
           <input type="hidden" name="action" value="update_email">
           <label>Username</label>
-          <input value="<?= e($user['username']) ?>" disabled style="opacity:.6;cursor:not-allowed">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+            <input value="<?= e($user['username']) ?>" disabled style="opacity:.7;cursor:not-allowed;flex:1">
+            <a href="<?= page_url('profile.php') ?>" class="btn s g">Change</a>
+          </div>
+          <small style="display:block;margin-bottom:14px;color:var(--mut);font-size:12px">Public URL: <a href="<?= e(user_url($user['username'])) ?>" target="_blank" rel="noopener" style="color:var(--a3);text-decoration:underline"><?= e(full_user_url($user['username'])) ?></a></small>
           <label>Email</label>
           <input type="email" name="email" value="<?= e($user['email']) ?>" required autocomplete="email">
           <p style="margin-top:20px"><button class="btn s">Save email</button></p>

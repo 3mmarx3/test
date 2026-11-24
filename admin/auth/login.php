@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             session_regenerate_id(true);
             $_SESSION['uid'] = (int)$u['id'];
+            log_audit('login', 'user', (int)$u['id'], 'Signed in as @' . $u['username']);
             header('Location: ' . dashboard_url('index.php'));
             exit;
         }

@@ -1,13 +1,55 @@
 <?php
-require_once __DIR__ . '/includes/auth.php';
-require_once __DIR__ . '/includes/permissions.php';
-require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/admin/includes/auth.php';
+require_once __DIR__ . '/admin/includes/permissions.php';
+require_once __DIR__ . '/admin/includes/functions.php';
+
+$rawUri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+$basePath = project_base_url();
+if ($basePath !== '' && str_starts_with($rawUri, $basePath)) {
+    $rawUri = substr($rawUri, strlen($basePath));
+}
+$rawUri = trim((string)$rawUri, '/');
+if (str_starts_with($rawUri, 'u/')) {
+    $legacyUser = trim(substr($rawUri, 2), '/');
+    if ($legacyUser !== '') {
+        header('Location: ' . user_url($legacyUser), true, 301);
+        exit;
+    }
+}
 
 $reqUser = trim($_GET['u'] ?? '');
+if ($reqUser === '') {
+    if ($rawUri !== '' && $rawUri !== 'index.php') {
+        $parts = explode('/', $rawUri);
+        if ($parts[0] === 'index.php' && isset($parts[1])) {
+            array_shift($parts);
+        }
+        $firstSeg = $parts[0] ?? '';
+        if (preg_match('/^[a-zA-Z0-9-]+$/', $firstSeg)) {
+            $reqUser = strtolower($firstSeg);
+        }
+    }
+}
+
 if ($reqUser !== '') {
-    $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE username = ? LIMIT 1');
-    $stmtUser->execute([$reqUser]);
-    $user = $stmtUser->fetch();
+    if (is_username_reserved($reqUser)) {
+        $user = null;
+    } else {
+        $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE username = ? LIMIT 1');
+        $stmtUser->execute([$reqUser]);
+        $user = $stmtUser->fetch();
+        if (!$user) {
+            try {
+                $stmtAlias = $pdo->prepare('SELECT u.username FROM username_aliases a JOIN users u ON u.id = a.user_id WHERE a.old_username = ? LIMIT 1');
+                $stmtAlias->execute([$reqUser]);
+                $canonicalName = $stmtAlias->fetchColumn();
+                if ($canonicalName) {
+                    header('Location: ' . user_url($canonicalName), true, 301);
+                    exit;
+                }
+            } catch (Throwable $e) {}
+        }
+    }
 } else {
     $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE status = "active" ORDER BY id LIMIT 1');
     $stmtUser->execute();
@@ -23,6 +65,7 @@ if (!$user || $user['status'] !== 'active') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Profile Not Found — Wander</title>
 <link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
 </head>
@@ -38,6 +81,8 @@ if (!$user || $user['status'] !== 'active') {
     <?php
     exit;
 }
+
+http_response_code(200);
 
 $userId = (int)$user['id'];
 $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
@@ -64,17 +109,39 @@ $links = $stmtLinks->fetchAll();
 
 $profile = [
     'name'   => $user['name']   ?? 'Your Name',
-    'handle' => $user['handle'] ?? ('@' . ($user['username'] ?? 'username')),
+    'handle' => $user['handle'] ? $user['handle'] : ('@' . ($user['username'] ?? 'username')),
     'bio'    => $user['bio']    ?? '',
     'photo'  => photo_url($user['photo'] ?? ''),
 ];
+$canonicalUrl = full_user_url($user['username']);
+$pageTitle = $profile['name'] . ' (@' . $user['username'] . ') — Wander';
+$metaDesc = $profile['bio'] !== '' ? $profile['bio'] : ('Explore links and social destinations for ' . $profile['name'] . ' on Wander.');
+$ogImage = $user['photo'] ? photo_url($user['photo']) : '';
+if ($ogImage && !preg_match('#^https?://#i', $ogImage)) {
+    $ogImage = app_origin() . $ogImage;
+}
 $J = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wander — Choose your destination</title>
+<title><?= e($pageTitle) ?></title>
+<meta name="description" content="<?= e($metaDesc) ?>">
+<link rel="canonical" href="<?= e($canonicalUrl) ?>">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="<?= e($pageTitle) ?>">
+<meta property="og:description" content="<?= e($metaDesc) ?>">
+<meta property="og:url" content="<?= e($canonicalUrl) ?>">
+<?php if ($ogImage): ?>
+<meta property="og:image" content="<?= e($ogImage) ?>">
+<?php endif; ?>
+<meta name="twitter:card" content="<?= $ogImage ? 'summary_large_image' : 'summary' ?>">
+<meta name="twitter:title" content="<?= e($pageTitle) ?>">
+<meta name="twitter:description" content="<?= e($metaDesc) ?>">
+<?php if ($ogImage): ?>
+<meta name="twitter:image" content="<?= e($ogImage) ?>">
+<?php endif; ?>
 <meta name="theme-color" content="#2a2f38">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>

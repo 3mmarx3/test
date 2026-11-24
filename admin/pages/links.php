@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $st->execute([$pos + 1, $lid, $effectiveUserId]);
                 }
             }
+            log_audit('reorder_links', 'link', null, 'Reordered ' . count($orderedIds) . ' links for user ID #' . $effectiveUserId);
         }
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['ok' => true]);
@@ -57,7 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($n !== '' && $u) { $ins->execute([$effectiveUserId, $n, $u, ++$max]); $ok++; }
             else $bad++;
         }
-        if ($ok) flash($ok . ' destination' . ($ok > 1 ? 's' : '') . ' added' . ($bad ? ' · ' . $bad . ' skipped (name or link missing)' : '.'));
+        if ($ok) {
+            log_audit('add_links', 'link', null, 'Added ' . $ok . ' destination links for user ID #' . $effectiveUserId);
+            flash($ok . ' destination' . ($ok > 1 ? 's' : '') . ' added' . ($bad ? ' · ' . $bad . ' skipped (name or link missing)' : '.'));
+        }
         else flash($bad ? 'Enter a name and a valid destination link.' : 'Nothing to add yet — fill in at least one link.', 'err');
     }
     elseif ($a === 'update_link') {
@@ -66,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($n && $u && $id > 0) {
             $pdo->prepare('UPDATE links SET name = ?, url = ? WHERE id = ? AND user_id = ?')->execute([$n, $u, $id, $effectiveUserId]);
+            log_audit('update_link', 'link', $id, 'Updated link #' . $id . ' to ' . $n);
             flash('Destination updated.');
         } else {
             flash('Name and a valid link are required.', 'err');
@@ -87,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
             $pdo->prepare('DELETE FROM links WHERE id = ? AND user_id = ?')->execute([$id, $effectiveUserId]);
+            log_audit('delete_link', 'link', $id, 'Deleted link #' . $id . ' for user ID #' . $effectiveUserId);
             flash('Destination deleted.');
         }
     }
@@ -94,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
             $pdo->prepare('UPDATE links SET clicks = 0 WHERE id = ? AND user_id = ?')->execute([$id, $effectiveUserId]);
+            log_audit('reset_clicks', 'link', $id, 'Reset clicks for link #' . $id);
             flash('Clicks reset.');
         }
     }
@@ -116,8 +123,8 @@ if ($targetUserId !== $currentUserId) {
     $targetUserData = $stT->fetch();
 }
 
-$pageTitle  = 'Wander — ' . ($isAdmin ? 'Links' : 'My Links');
-$activePage = 'links';
+$pageTitle  = 'Wander — ' . ($isAdmin ? 'Pages' : 'My Page');
+$activePage = 'pages';
 include dirname(__DIR__) . '/includes/header.php';
 ?>
 <div class="shell">
@@ -125,12 +132,16 @@ include dirname(__DIR__) . '/includes/header.php';
   <main class="main page">
     <div class="head">
       <div>
-        <h1><?= $targetUserData ? 'Links for @' . e($targetUserData['username']) : ($isAdmin ? 'Links' : 'My Links') ?></h1>
+        <h1><?= $targetUserData ? 'Page for @' . e($targetUserData['username']) : ($isAdmin ? 'Pages' : 'My Page') ?></h1>
         <p><?= $targetUserData ? 'Managing destinations for user ' . e($targetUserData['name']) : 'Add, edit and reorder the destinations shown on your public page.' ?></p>
       </div>
-      <?php if ($targetUserData): ?>
-        <a href="<?= page_url('users.php') ?>" class="btn s g">Back to Users Directory</a>
-      <?php endif; ?>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <?php $pageOwnerUsername = $targetUserData ? $targetUserData['username'] : $currentUser['username']; ?>
+        <a href="<?= e(user_url($pageOwnerUsername)) ?>" target="_blank" rel="noopener" class="btn s g">View Public Page</a>
+        <?php if ($targetUserData): ?>
+          <a href="<?= page_url('users.php') ?>" class="btn s g">Back to Users Directory</a>
+        <?php endif; ?>
+      </div>
     </div>
 
     <div class="card mb">

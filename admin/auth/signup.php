@@ -24,14 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Full name must be at least 2 characters.';
     }
 
-    if (!preg_match('/^[a-z0-9_\.-]{3,30}$/', $username)) {
-        $errors[] = 'Username must be 3-30 characters (letters, numbers, underscores, dots, hyphens).';
-    } else {
-        $stU = $pdo->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
-        $stU->execute([$username]);
-        if ($stU->fetch()) {
-            $errors[] = 'This username is already taken. Please choose another.';
-        }
+    if ($username === '') {
+        $username = generate_username($name, $pdo);
+    } elseif (!is_valid_username_format($username)) {
+        $errors[] = 'Username must be 3-30 characters with lowercase letters, numbers, and single hyphens.';
+    } elseif (is_username_reserved($username)) {
+        $errors[] = 'This username is reserved by the system. Please choose another.';
+    } elseif (is_username_taken($username, 0, $pdo)) {
+        $errors[] = 'This username is already taken. Please choose another.';
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -87,8 +87,8 @@ include dirname(__DIR__) . '/includes/header.php';
       <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
       <label>Full name</label>
       <input type="text" name="name" value="<?= e($name) ?>" placeholder="e.g. Alex Morgan" required autofocus>
-      <label>Username</label>
-      <input type="text" name="username" value="<?= e($username) ?>" placeholder="e.g. alexmorgan" required autocomplete="username">
+      <label>Username (optional, auto-generated from name if left empty)</label>
+      <input type="text" name="username" value="<?= e($username) ?>" placeholder="e.g. alex-morgan" autocomplete="username">
       <label>Email address</label>
       <input type="email" name="email" value="<?= e($email) ?>" placeholder="alex@example.com" required autocomplete="email">
       <label>Password (min 8 characters)</label>

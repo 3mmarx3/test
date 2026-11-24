@@ -172,3 +172,148 @@ if (!function_exists('save_photo')) {
         return null;
     }
 }
+
+if (!function_exists('log_audit')) {
+    function log_audit($action, $targetType = 'system', $targetId = null, $details = '') {
+        global $pdo;
+        if (!$pdo) {
+            return false;
+        }
+        $actorId = (int)($_SESSION['uid'] ?? 0);
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        try {
+            $stmt = $pdo->prepare('INSERT INTO audit_logs (actor_id, action, target_type, target_id, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)');
+            return $stmt->execute([$actorId, $action, $targetType, $targetId, $details, $ip]);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('create_notification')) {
+    function create_notification($userId, $title, $message, $type = 'info', $linkUrl = '') {
+        global $pdo;
+        if (!$pdo || !(int)$userId) {
+            return false;
+        }
+        try {
+            $stmt = $pdo->prepare('INSERT INTO notifications (user_id, title, message, type, link_url, is_read) VALUES (?, ?, ?, ?, ?, 0)');
+            return $stmt->execute([(int)$userId, $title, $message, $type, $linkUrl]);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('unread_notifications_count')) {
+    function unread_notifications_count($userId) {
+        global $pdo;
+        if (!$pdo || !(int)$userId) {
+            return 0;
+        }
+        try {
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0');
+            $stmt->execute([(int)$userId]);
+            return (int)$stmt->fetchColumn();
+        } catch (Throwable $e) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('safe_csv_val')) {
+    function safe_csv_val($val) {
+        $val = (string)$val;
+        if (preg_match('/^\s*[=+\-@|%\t\r]/', $val)) {
+            $val = "'" . $val;
+        }
+        return $val;
+    }
+}
+
+if (!function_exists('is_valid_username_format')) {
+    function is_valid_username_format($username) {
+        if (!is_string($username)) {
+            return false;
+        }
+        $username = trim($username);
+        $len = strlen($username);
+        if ($len < 3 || $len > 30) {
+            return false;
+        }
+        return (bool)preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $username);
+    }
+}
+
+if (!function_exists('is_username_reserved')) {
+    function is_username_reserved($username) {
+        static $reserved = [
+            'admin', 'administrator', 'dashboard', 'login', 'logout', 'register',
+            'signup', 'auth', 'api', 'assets', 'config', 'uploads', 'settings',
+            'profile', 'search', 'support', 'about', 'contact', 'terms', 'privacy',
+            'robots', 'robots.txt', 'sitemap', 'sitemap.xml', 'favicon', 'favicon.ico',
+            'actions', 'pages', 'includes', 'export', 'links', 'notifications',
+            'features', 'feature-suggestions', 'analytics', 'index', 'index.php', 'null'
+        ];
+        return in_array(strtolower(trim((string)$username)), $reserved, true);
+    }
+}
+
+if (!function_exists('is_username_taken')) {
+    function is_username_taken($username, $excludeUserId = 0, $pdo = null) {
+        if (!$pdo) {
+            global $pdo;
+        }
+        if (!$pdo) {
+            return false;
+        }
+        $username = strtolower(trim((string)$username));
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ? AND id != ? LIMIT 1');
+        $stmt->execute([$username, (int)$excludeUserId]);
+        if ($stmt->fetch()) {
+            return true;
+        }
+        try {
+            $stmtA = $pdo->prepare('SELECT user_id FROM username_aliases WHERE old_username = ? AND user_id != ? LIMIT 1');
+            $stmtA->execute([$username, (int)$excludeUserId]);
+            if ($stmtA->fetch()) {
+                return true;
+            }
+        } catch (Throwable $e) {}
+        return false;
+    }
+}
+
+if (!function_exists('generate_username')) {
+    function generate_username($name, $pdo = null, $excludeUserId = 0) {
+        if (!$pdo) {
+            global $pdo;
+        }
+        $slug = strtolower(trim((string)$name));
+        $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);
+        $slug = trim($slug, '-');
+        $slug = preg_replace('/-+/', '-', $slug);
+        if (strlen($slug) < 3) {
+            $slug = 'user-' . ($slug !== '' ? $slug : bin2hex(random_bytes(2)));
+            $slug = trim($slug, '-');
+        }
+        if (strlen($slug) > 24) {
+            $slug = substr($slug, 0, 24);
+            $slug = rtrim($slug, '-');
+        }
+        if (strlen($slug) < 3) {
+            $slug = 'user';
+        }
+        $candidate = $slug;
+        $i = 1;
+        while (is_username_reserved($candidate) || is_username_taken($candidate, $excludeUserId, $pdo)) {
+            $suffix = '-' . $i;
+            $maxBaseLen = 30 - strlen($suffix);
+            $basePart = substr($slug, 0, $maxBaseLen);
+            $basePart = rtrim($basePart, '-');
+            $candidate = $basePart . $suffix;
+            $i++;
+        }
+        return $candidate;
+    }
+}

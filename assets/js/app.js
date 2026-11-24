@@ -388,4 +388,164 @@ document.addEventListener('DOMContentLoaded', function () {
       };
     });
   }
+
+  const globalSearchInput = document.getElementById('globalSearchInput');
+  const globalSearchResults = document.getElementById('globalSearchResults');
+  if (globalSearchInput && globalSearchResults) {
+    let debounceTimer = null;
+    globalSearchInput.addEventListener('input', function () {
+      const q = this.value.trim();
+      clearTimeout(debounceTimer);
+      if (q.length < 2) {
+        globalSearchResults.innerHTML = '';
+        globalSearchResults.style.display = 'none';
+        return;
+      }
+      debounceTimer = setTimeout(function () {
+        const searchUrl = globalSearchInput.dataset.searchUrl || '/test/admin/pages/search.php';
+        fetch(searchUrl + '?q=' + encodeURIComponent(q))
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            let html = '';
+            if (data && data.users && data.users.length) {
+              html += '<div class="search-group-title">Members</div>';
+              data.users.forEach(function (u) {
+                const href = u.profile_url || ('/' + encodeURIComponent(u.username));
+                html += '<a class="search-result-item" href="' + href + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div><strong>' + escapeHtml(u.name) + '</strong> <small style="color:var(--mut)">@' + escapeHtml(u.username) + '</small></div></a>';
+              });
+            }
+            if (data && data.links && data.links.length) {
+              html += '<div class="search-group-title">Destinations</div>';
+              data.links.forEach(function (l) {
+                html += '<a class="search-result-item" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><div><strong>' + escapeHtml(l.name) + '</strong> <small style="color:var(--mut)">' + l.clicks + ' clicks</small></div></a>';
+              });
+            }
+            if (!html) {
+              html = '<div class="search-empty">No results found for "' + escapeHtml(q) + '"</div>';
+            }
+            globalSearchResults.innerHTML = html;
+            globalSearchResults.style.display = 'block';
+          })
+          .catch(function () {
+            globalSearchResults.style.display = 'none';
+          });
+      }, 200);
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!globalSearchInput.contains(e.target) && !globalSearchResults.contains(e.target)) {
+        globalSearchResults.style.display = 'none';
+      }
+    });
+
+    globalSearchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        globalSearchResults.style.display = 'none';
+      }
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  window.openEditModal = function (feat) {
+    const modal = document.getElementById('editFeatureModal');
+    if (!modal) return;
+    document.getElementById('modalFeatureId').value = feat ? (feat.id || '') : '';
+    document.getElementById('modalAction').value = feat ? 'update_feature' : 'create_feature';
+    document.getElementById('modalTitleText').textContent = feat ? 'Edit Feature Recommendation' : 'Add Feature Recommendation';
+    document.getElementById('modalTitle').value = feat ? (feat.title || '') : '';
+    document.getElementById('modalCategory').value = feat ? (feat.category || 'User Experience') : 'User Experience';
+    document.getElementById('modalPriority').value = feat ? (feat.priority || 'Medium') : 'Medium';
+    document.getElementById('modalComplexity').value = feat ? (feat.complexity || 'Medium') : 'Medium';
+    document.getElementById('modalStatus').value = feat ? (feat.status || 'suggested') : 'suggested';
+    document.getElementById('modalAudience').value = feat ? (feat.target_audience || '') : '';
+    document.getElementById('modalDescription').value = feat ? (feat.description || '') : '';
+    document.getElementById('modalBenefit').value = feat ? (feat.benefit || '') : '';
+    document.getElementById('modalDbChanges').value = feat ? (feat.db_changes || '') : '';
+    document.getElementById('modalDependencies').value = feat ? (feat.dependencies || '') : '';
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeEditModal = function () {
+    const modal = document.getElementById('editFeatureModal');
+    if (modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      window.closeEditModal();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    const copyBtn = e.target.closest('.copy-btn');
+    if (copyBtn) {
+      e.preventDefault();
+      const url = copyBtn.getAttribute('data-url') || window.location.href;
+      const textSpan = copyBtn.querySelector('.btn-text');
+      const origText = textSpan ? textSpan.textContent : '';
+
+      function onCopied() {
+        if (textSpan) textSpan.textContent = 'Copied!';
+        setTimeout(function () {
+          if (textSpan) textSpan.textContent = origText;
+        }, 2000);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(onCopied).catch(function () {
+          fallbackCopy(url, onCopied);
+        });
+      } else {
+        fallbackCopy(url, onCopied);
+      }
+    }
+
+    const shareBtn = e.target.closest('.share-btn');
+    if (shareBtn) {
+      e.preventDefault();
+      const url = shareBtn.getAttribute('data-url') || window.location.href;
+      const title = shareBtn.getAttribute('data-title') || document.title;
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function () {});
+      } else {
+        const textSpan = shareBtn.querySelector('.btn-text');
+        const origText = textSpan ? textSpan.textContent : '';
+        function onSharedFallback() {
+          if (textSpan) textSpan.textContent = 'Link Copied!';
+          setTimeout(function () {
+            if (textSpan) textSpan.textContent = origText;
+          }, 2000);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(onSharedFallback).catch(function () {
+            fallbackCopy(url, onSharedFallback);
+          });
+        } else {
+          fallbackCopy(url, onSharedFallback);
+        }
+      }
+    }
+  });
+
+  function fallbackCopy(text, callback) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      if (callback) callback();
+    } catch (err) {}
+    document.body.removeChild(ta);
+  }
 });

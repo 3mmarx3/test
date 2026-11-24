@@ -1,6 +1,6 @@
 <?php
-require_once dirname(__DIR__) . '/includes/permissions.php';
-require_once dirname(__DIR__) . '/includes/functions.php';
+require_once __DIR__ . '/includes/permissions.php';
+require_once __DIR__ . '/includes/functions.php';
 require_login();
 
 $currentUser = current_user();
@@ -115,20 +115,65 @@ $A = [
 $pageTitle  = 'Wander — Overview';
 $activePage = 'overview';
 $J = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
-include dirname(__DIR__) . '/includes/header.php';
+include __DIR__ . '/includes/header.php';
 ?>
 <div class="shell">
-  <?php include dirname(__DIR__) . '/includes/sidebar.php'; ?>
+  <?php include __DIR__ . '/includes/sidebar.php'; ?>
   <main class="main page">
     <div class="head">
       <div>
         <h1>Overview</h1>
         <p><span class="dot"></span><?= nf($A['active']) ?> active in the last 30 minutes · <?= nf($A['today']) ?> visits today <?= $isAdmin ? 'across platform' : 'on your page' ?></p>
       </div>
-      <div class="seg">
-        <a href="?range=7" class="<?= $range === 7 ? 'on' : '' ?>">7 days</a>
-        <a href="?range=30" class="<?= $range === 30 ? 'on' : '' ?>">30 days</a>
-        <a href="?range=90" class="<?= $range === 90 ? 'on' : '' ?>">90 days</a>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="seg">
+          <a href="?range=7" class="<?= $range === 7 ? 'on' : '' ?>">7 days</a>
+          <a href="?range=30" class="<?= $range === 30 ? 'on' : '' ?>">30 days</a>
+          <a href="?range=90" class="<?= $range === 90 ? 'on' : '' ?>">90 days</a>
+        </div>
+        <?php if ($isAdmin): ?>
+          <form method="post" action="<?= page_url('export.php') ?>" style="display:inline;margin:0">
+            <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+            <input type="hidden" name="type" value="analytics">
+            <button type="submit" class="btn s g" title="Export Analytics CSV" style="cursor:pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export CSV
+            </button>
+          </form>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <?php $myPublicUrl = full_user_url($currentUser['username']); ?>
+    <div class="card mb" style="border-color:rgba(255,255,255,0.12)">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+        <div>
+          <div style="font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:4px;font-weight:600">My Public Profile</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h2 style="margin:0;font-size:18px;line-height:1.2"><?= e($currentUser['name']) ?></h2>
+            <span style="font-size:13.5px;color:var(--mut)">@<?= e($currentUser['username']) ?></span>
+            <span class="pill <?= ($currentUser['status'] ?? 'active') === 'active' ? 'up' : 'down' ?>" style="font-size:11px">
+              <?= ($currentUser['status'] ?? 'active') === 'active' ? 'Public & Active' : 'Suspended' ?>
+            </span>
+          </div>
+          <div style="margin-top:6px;font-family:monospace;font-size:13px;color:var(--a3);word-break:break-all">
+            <?= e($myPublicUrl) ?>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn s copy-btn" data-url="<?= e($myPublicUrl) ?>" style="cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="btn-text">Copy Link</span>
+          </button>
+          <a href="<?= e(user_url($currentUser['username'])) ?>" target="_blank" rel="noopener" class="btn s g" title="Open profile in new tab">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span>Open Profile</span>
+          </a>
+          <button type="button" class="btn s g share-btn" data-title="<?= e($currentUser['name']) ?>" data-url="<?= e($myPublicUrl) ?>" style="cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span class="btn-text">Share</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -189,7 +234,7 @@ include dirname(__DIR__) . '/includes/header.php';
     <div class="card mb">
       <h2>Most clicked links <span>all time</span></h2>
       <?php if (!$links): ?>
-        <p class="empty">No destinations recorded yet. Manage your destinations on the <a href="<?= page_url('links.php') ?>" style="text-decoration:underline">Links</a> page.</p>
+        <p class="empty">No destinations recorded yet. Manage your destinations on the <a href="<?= page_url('links.php') ?>" style="text-decoration:underline">Pages</a> section.</p>
       <?php else:
         $sorted = $links; usort($sorted, fn($a, $b) => $b['clicks'] <=> $a['clicks']);
         foreach (array_slice($sorted, 0, 8) as $l):
@@ -259,4 +304,4 @@ function drawChart(){
 drawChart();
 addEventListener('resize',drawChart);
 </script>
-<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

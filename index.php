@@ -66,8 +66,8 @@ if ($reqUser === '') {
         exit;
     }
     http_response_code(200);
-    $pageTitle = 'Wander — Choose your destination';
-    $metaDesc = 'Claim your unique username. Share all your destinations, social channels, and portfolio with one unified link.';
+    $pageTitle = 'Wander — One Unified Link For Every Destination';
+    $metaDesc = 'The gallery-grade digital identity platform. Claim your root-level username and unify your destinations with zero redirection delay.';
     $canonicalUrl = app_origin() . base_url('');
     ?>
 <!DOCTYPE html>
@@ -85,101 +85,717 @@ if ($reqUser === '') {
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($pageTitle) ?>">
 <meta name="twitter:description" content="<?= e($metaDesc) ?>">
-<meta name="theme-color" content="#22262d">
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
+<meta name="theme-color" content="#06080a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  .hero-wrap{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;padding:0 clamp(16px,4vw,40px);position:relative;overflow:hidden}
-  .nav-bar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;width:100%;max-width:1180px;margin:0 auto}
-  .hero-brand{font-family:var(--serif);font-size:34px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px}
-  .hero-brand small{font:500 11px var(--sans);color:var(--mut);letter-spacing:.14em;text-transform:uppercase}
-  .hero-nav{display:flex;align-items:center;gap:12px}
-  .hero-main{width:100%;max-width:760px;margin:auto;text-align:center;padding:40px 0 60px}
-  .hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:#ffffff14;border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--a1);margin-bottom:20px}
-  .hero-title{font-family:var(--serif);font-size:clamp(38px,7.5vw,72px);font-weight:400;letter-spacing:-.025em;line-height:1.02;margin-bottom:18px}
-  .hero-sub{font-size:clamp(15px,2vw,18px);color:var(--mut);line-height:1.55;max-width:540px;margin:0 auto 32px}
-  .claim-box{display:flex;align-items:center;background:#00000040;border:1px solid #ffffff26;border-radius:999px;padding:6px 6px 6px 18px;max-width:480px;margin:0 auto 28px;box-shadow:0 12px 36px #0004}
-  .claim-prefix{color:var(--mut);font-size:14px;white-space:nowrap;user-select:none}
-  .claim-input{background:transparent;border:0;color:#fff;font-size:15px;padding:8px;flex:1;min-width:0;outline:none}
-  .claim-btn{background:#fff;color:#1b1f26;border-radius:999px;padding:12px 22px;font-weight:600;font-size:14px;white-space:nowrap;transition:opacity .15s}
-  .claim-btn:hover{opacity:.92}
-  .hero-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
-  .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1180px;width:100%;margin:0 auto 40px}
-  .feat-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);text-align:left}
-  .feat-icon{width:42px;height:42px;border-radius:12px;background:#ffffff14;display:grid;place-items:center;margin-bottom:16px;font-size:18px;color:var(--a1)}
-  .feat-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
-  .feat-card p{color:var(--mut);font-size:13.5px;line-height:1.5}
-  .hero-footer{padding:24px 0;border-top:1px solid var(--line);width:100%;max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mut);flex-wrap:wrap;gap:12px}
-  .footer-links{display:flex;gap:18px}
-  .footer-links a:hover{color:#fff;text-decoration:underline}
-  @media(max-width:768px){
-    .hero-grid{grid-template-columns:1fr;gap:12px}
-    .hero-footer{flex-direction:column;text-align:center}
-    .claim-box{flex-direction:column;border-radius:20px;padding:12px;gap:10px}
-    .claim-prefix{align-self:flex-start}
-    .claim-input{width:100%}
-    .claim-btn{width:100%}
+  :root {
+    --bg: #06080a;
+    --card-bg: rgba(18, 22, 29, 0.72);
+    --line: rgba(255, 255, 255, 0.08);
+    --line-glow: rgba(245, 201, 107, 0.28);
+    --fg: #ffffff;
+    --fg-80: rgba(255, 255, 255, 0.82);
+    --fg-60: rgba(255, 255, 255, 0.62);
+    --fg-40: rgba(255, 255, 255, 0.40);
+    --gold: #f5c96b;
+    --gold-glow: rgba(245, 201, 107, 0.15);
+    --cyan: #7fb4ff;
+    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    --mono: "JetBrains Mono", monospace;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--gold); color: #000; }
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0.038;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  .viewport-frame {
+    padding: clamp(12px, 2vw, 24px);
+    max-width: 1440px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+  .stage {
+    background: radial-gradient(circle at 50% 0%, rgba(245, 201, 107, 0.07) 0%, rgba(10, 13, 18, 0.6) 45%, #06080a 85%);
+    border: 1px solid var(--line);
+    border-radius: clamp(20px, 3vw, 36px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.8);
+  }
+  .ambient-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.28;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .video-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(6, 8, 10, 0.2) 0%, rgba(6, 8, 10, 0.7) 60%, #06080a 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .stage-inner {
+    position: relative;
+    z-index: 5;
+    padding: clamp(20px, 4vw, 48px);
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - clamp(24px, 4vw, 48px));
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(14, 18, 24, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    margin-bottom: clamp(40px, 7vh, 80px);
+  }
+  .brand {
+    font-family: var(--serif);
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    text-decoration: none;
+  }
+  .brand-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(245, 201, 107, 0.12);
+    border: 1px solid rgba(245, 201, 107, 0.3);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav-link {
+    color: var(--fg-60);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: color 0.2s var(--ease-out);
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.22s var(--ease-out);
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .pill-solid {
+    background: #ffffff;
+    color: #06080a;
+  }
+  .pill-solid:hover {
+    background: #f0f0ee;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -6px rgba(255, 255, 255, 0.35);
+  }
+  .pill-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--fg-80);
+    border-color: var(--line);
+  }
+  .pill-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .hero-center {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-80);
+    margin-bottom: 24px;
+  }
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    display: inline-block;
+  }
+  .h1-title {
+    font-size: clamp(44px, 7.5vw, 84px);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.038em;
+    margin-bottom: 22px;
+    color: #fff;
+  }
+  .serif-accent {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: -0.01em;
+    padding-right: 4px;
+  }
+  .hero-desc {
+    font-size: clamp(15px, 1.8vw, 18px);
+    line-height: 1.55;
+    color: var(--fg-60);
+    max-width: 580px;
+    margin-bottom: 36px;
+  }
+  .claim-pill-form {
+    display: flex;
+    align-items: center;
+    background: rgba(14, 18, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    padding: 6px 6px 6px 20px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.25s var(--ease-out);
+    margin-bottom: 32px;
+  }
+  .claim-pill-form:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(245, 201, 107, 0.18);
+  }
+  .domain-tag {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    color: var(--fg-40);
+    user-select: none;
+    letter-spacing: -0.01em;
+  }
+  .claim-input-field {
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 14.5px;
+    font-weight: 500;
+    padding: 8px 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  .claim-input-field::placeholder { color: var(--fg-40); }
+  .claim-submit-btn {
+    background: #ffffff;
+    color: #06080a;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 24px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-out);
+    white-space: nowrap;
+  }
+  .claim-submit-btn:hover {
+    background: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 201, 107, 0.35);
+  }
+  .creators-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: clamp(48px, 8vh, 88px);
+  }
+  .strip-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-40);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .creator-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    color: var(--fg-80);
+    text-decoration: none;
+    font-size: 12px;
+    font-family: var(--mono);
+    transition: all 0.2s var(--ease-out);
+  }
+  .creator-tag:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+  }
+  .creator-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1e2430;
+    display: inline-grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .preview-stage {
+    perspective: 1200px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto clamp(48px, 8vh, 88px);
+  }
+  .preview-card {
+    background: rgba(18, 22, 30, 0.88);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 32px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 40px 90px -20px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    transform-style: preserve-3d;
+    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+  }
+  .preview-card:hover {
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.95), 0 0 40px rgba(245, 201, 107, 0.1);
+  }
+  .mock-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 24px rgba(245, 201, 107, 0.35);
+    background: #1a202c url('/admin/uploads/avatars/d69537ec206c30f7.jpg') center/cover no-repeat;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+  }
+  .mock-name {
+    font-size: 19px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .verified-icon {
+    width: 16px;
+    height: 16px;
+    fill: #38bdf8;
+  }
+  .mock-handle {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .mock-bio {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fg-60);
+    margin-bottom: 24px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .mock-destinations {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .mock-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.2s var(--ease-out);
+  }
+  .mock-link:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+  .mock-link-stats {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-40);
+  }
+  .mock-footer-meta {
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-40);
+  }
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    margin-bottom: clamp(48px, 8vh, 88px);
+  }
+  .bento-card {
+    background: rgba(14, 18, 25, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 32px 28px;
+    text-align: left;
+    transition: all 0.25s var(--ease-out);
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    background: rgba(18, 23, 32, 0.75);
+  }
+  .card-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .bento-card h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .bento-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fg-60);
+  }
+  .cta-banner {
+    background: radial-gradient(circle at 50% 50%, rgba(245, 201, 107, 0.12) 0%, rgba(14, 18, 26, 0.8) 70%);
+    border: 1px solid rgba(245, 201, 107, 0.3);
+    border-radius: 32px;
+    padding: clamp(36px, 6vw, 64px) 24px;
+    text-align: center;
+    margin-bottom: clamp(40px, 6vh, 64px);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7);
+  }
+  .cta-banner h2 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+  .cta-banner p {
+    color: var(--fg-60);
+    font-size: 16px;
+    margin-bottom: 28px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 12px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--fg-40);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .footer-links a {
+    color: var(--fg-60);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-links a:hover { color: #fff; }
+  .system-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-60);
+  }
+  @media (max-width: 900px) {
+    .bento-grid { grid-template-columns: 1fr; gap: 14px; }
+    .nav-menu { display: none; }
+  }
+  @media (max-width: 600px) {
+    .claim-pill-form {
+      flex-direction: column;
+      border-radius: 24px;
+      padding: 12px;
+      gap: 10px;
+    }
+    .domain-tag { align-self: flex-start; padding-left: 6px; }
+    .claim-input-field { width: 100%; padding: 4px 6px; }
+    .claim-submit-btn { width: 100%; }
+    .footer-row { flex-direction: column; text-align: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-video { display: none; }
+    .preview-card { transform: none !important; }
   }
 </style>
 </head>
 <body>
-<div class="hero-wrap">
-  <nav class="nav-bar">
-    <div class="hero-brand">
-      Wander <small>MY-TAP</small>
-    </div>
-    <div class="hero-nav">
-      <a href="<?= e(login_url()) ?>" class="btn g s">Sign In</a>
-      <a href="<?= e(register_url()) ?>" class="btn s">Create Page</a>
-    </div>
-  </nav>
+<div class="noise" aria-hidden="true"></div>
 
-  <main class="hero-main">
-    <div class="hero-pill">
-      <span>✦</span> The Destination Layer for Your Social Presence
-    </div>
-    <h1 class="hero-title">All your destinations, in one single tap.</h1>
-    <p class="hero-sub">Claim your unique root-level username. Unify your social links, portfolio, and creative content with a single link.</p>
+<div class="viewport-frame">
+  <div class="stage">
+    <video class="ambient-video" autoplay loop muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100%25' height='100%25' fill='%2306080a'/%3E%3C/svg%3E">
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260702_135039_b04d00db-6ee2-4e2a-a7f5-b2dfd3d24fd2.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay" aria-hidden="true"></div>
 
-    <form class="claim-box" action="<?= e(register_url()) ?>" method="get">
-      <span class="claim-prefix"><?= e(app_origin() . base_url('')) ?></span>
-      <input type="text" name="username" class="claim-input" placeholder="your-name" pattern="[a-zA-Z0-9-]+" autocomplete="off" spellcheck="false" required>
-      <button type="submit" class="claim-btn">Claim Username</button>
-    </form>
+    <div class="stage-inner">
+      <header class="nav">
+        <a href="<?= e(base_url('')) ?>" class="brand">
+          Wander <span class="brand-badge">PRO</span>
+        </a>
+        <nav class="nav-menu">
+          <a href="#preview" class="nav-link">Live Preview</a>
+          <a href="#architecture" class="nav-link">Architecture</a>
+          <a href="#intelligence" class="nav-link">Telemetry</a>
+          <a href="#creators" class="nav-link">Directory</a>
+        </nav>
+        <div class="nav-actions">
+          <a href="<?= e(login_url()) ?>" class="pill-btn pill-ghost">Sign In</a>
+          <a href="<?= e(register_url()) ?>" class="pill-btn pill-solid">Claim Page ↗</a>
+        </div>
+      </header>
 
-    <div class="hero-actions">
-      <a href="<?= e(register_url()) ?>" class="btn">Get Started — Free</a>
-      <a href="<?= e(login_url()) ?>" class="btn g">Sign In to Account</a>
-    </div>
-  </main>
+      <section class="hero-center">
+        <div class="eyebrow">
+          <span class="pulse-dot"></span>
+          Wander 2.0 · The Root-Level Digital Identity
+        </div>
 
-  <section class="hero-grid">
-    <div class="feat-card">
-      <div class="feat-icon">⚡</div>
-      <h3>Direct Root Profiles</h3>
-      <p>Clean, memorable URLs like <code><?= e(app_origin() . base_url('your-name')) ?></code> without clutter, subdomains, or directory prefixes.</p>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">🎯</div>
-      <h3>Interactive Destinations</h3>
-      <p>A destination dial and profile card that displays your bio, photos, and destinations in seconds.</p>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">📊</div>
-      <h3>Real-time Analytics</h3>
-      <p>Track unique visitors, click-through rates, and destination engagement with built-in dashboard analytics.</p>
-    </div>
-  </section>
+        <h1 class="h1-title">
+          One unified link<br>
+          for every <span class="serif-accent">destination</span>.
+        </h1>
 
-  <footer class="hero-footer">
-    <div>&copy; <?= date('Y') ?> Wander / MY-TAP. All rights reserved.</div>
-    <div class="footer-links">
-      <a href="<?= e(login_url()) ?>">Sign In</a>
-      <a href="<?= e(register_url()) ?>">Create Account</a>
-      <a href="<?= e(admin_base_url()) ?>">Admin</a>
+        <p class="hero-desc">
+          Replace fragmented link aggregators with a gallery-grade personal landing page. Hosted at direct root-level with zero redirection delay.
+        </p>
+
+        <form class="claim-pill-form" action="<?= e(register_url()) ?>" method="get">
+          <span class="domain-tag"><?= e(preg_replace('#^https?://#', '', rtrim(app_origin() . base_url(''), '/'))) ?>/</span>
+          <input type="text" name="claim" class="claim-input-field" placeholder="yourname" autocomplete="off" spellcheck="false" required pattern="[a-zA-Z0-9-]+" autofocus>
+          <button type="submit" class="claim-submit-btn">Claim Page ↗</button>
+        </form>
+
+        <div class="creators-strip" id="creators">
+          <span class="strip-label">Verified Creators:</span>
+          <a href="<?= user_url('ammar-ahmed') ?>" class="creator-tag">
+            <span class="creator-avatar">A</span>
+            @ammar-ahmed
+          </a>
+          <a href="<?= user_url('medo123') ?>" class="creator-tag">
+            <span class="creator-avatar">M</span>
+            @medo123
+          </a>
+          <a href="<?= user_url('mariam') ?>" class="creator-tag">
+            <span class="creator-avatar">M</span>
+            @mariam
+          </a>
+          <a href="<?= user_url('omar-qadry') ?>" class="creator-tag">
+            <span class="creator-avatar">O</span>
+            @omar-qadry
+          </a>
+        </div>
+      </section>
+
+      <div class="preview-stage" id="preview">
+        <div class="preview-card" id="tiltCard">
+          <div class="mock-avatar">⚡</div>
+          <div class="mock-name">
+            Ammar Ahmed
+            <svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <div class="mock-handle">@ammar-ahmed</div>
+          <p class="mock-bio">Software Architect & Full Stack Designer. Directing digital destinations across platforms.</p>
+
+          <div class="mock-destinations">
+            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
+              <span>✦ Selected Works & Case Studies</span>
+              <span class="mock-link-stats">4.8k taps</span>
+            </a>
+            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
+              <span>⚡ Open Source & Architecture</span>
+              <span class="mock-link-stats">3.2k taps</span>
+            </a>
+            <a href="<?= user_url('ammar-ahmed') ?>" class="mock-link">
+              <span>💼 Studio & Advisory Inquiries</span>
+              <span class="mock-link-stats">1.9k taps</span>
+            </a>
+          </div>
+
+          <div class="mock-footer-meta">
+            <span>Live Uptime: 99.98%</span>
+            <span>0ms Redirect Lag</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="bento-grid" id="architecture">
+        <div class="bento-card">
+          <span class="card-num">01 / ARCHITECTURE</span>
+          <h3>Pure Root Routing</h3>
+          <p>Your identity lives cleanly at <code>my-tap.online/{username}</code>. Never compromised by <code>/u/</code> directories, sluggish subdomains, or nested path bloat.</p>
+        </div>
+
+        <div class="bento-card" id="intelligence">
+          <span class="card-num">02 / INTELLIGENCE</span>
+          <h3>Real-Time Telemetry</h3>
+          <p>Track unique visitors, destination click attribution, country heatmaps, and referrer channels without invasive tracking scripts.</p>
+        </div>
+
+        <div class="bento-card">
+          <span class="card-num">03 / CRAFT</span>
+          <h3>Gallery-Grade Aesthetics</h3>
+          <p>Engineered with deep nocturnal contrast, cinematic ambient motion, and Instrument Serif typography tailored to elevate your presence.</p>
+        </div>
+      </section>
+
+      <section class="cta-banner">
+        <h2>Claim your name today.</h2>
+        <p>Join creators and founders publishing their verified destination hubs on Wander.</p>
+        <div class="cta-btns">
+          <a href="<?= e(register_url()) ?>" class="pill-btn pill-solid" style="padding:13px 28px;font-size:14px">Get Started — Free ↗</a>
+          <a href="<?= e(login_url()) ?>" class="pill-btn pill-ghost" style="padding:13px 24px;font-size:14px">Sign In to Dashboard</a>
+        </div>
+      </section>
+
+      <footer class="footer-row">
+        <div>&copy; <?= date('Y') ?> Wander / MY-TAP. The Digital Destination Protocol.</div>
+        <div class="system-status">
+          <span class="pulse-dot"></span>
+          LiteSpeed Edge Active
+        </div>
+        <div class="footer-links">
+          <a href="<?= e(login_url()) ?>">Sign In</a>
+          <a href="<?= e(register_url()) ?>">Create Page</a>
+          <a href="<?= e(dashboard_url('index.php')) ?>">Workspace</a>
+        </div>
+      </footer>
     </div>
-  </footer>
+  </div>
 </div>
+
+<script>
+(function() {
+  const card = document.getElementById('tiltCard');
+  if (!card) return;
+  const stage = card.parentElement;
+
+  stage.addEventListener('mousemove', function(e) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotX = -(y / (rect.height / 2)) * 8;
+    const rotY = (x / (rect.width / 2)) * 8;
+    card.style.transform = `perspective(1200px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+  });
+
+  stage.addEventListener('mouseleave', function() {
+    card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+  });
+})();
+</script>
 </body>
 </html>
     <?php

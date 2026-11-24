@@ -7,6 +7,11 @@ $currentUser = current_user();
 $userId = (int)$currentUser['id'];
 $isAdmin = is_admin();
 
+if (!$isAdmin && !defined('ALLOW_USER_WORKSPACE')) {
+    http_response_code(403);
+    exit('Access forbidden. Administrator privileges required.');
+}
+
 $rawRange = (int)($_GET['range'] ?? 30);
 $range = in_array($rawRange, [7, 30, 90], true) ? $rawRange : 30;
 $todayStart = strtotime('today midnight');

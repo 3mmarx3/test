@@ -52,7 +52,7 @@ if ($reqUser === 'logout') {
     exit;
 }
 if ($reqUser === 'dashboard') {
-    include __DIR__ . '/admin/index.php';
+    include __DIR__ . '/dashboard.php';
     exit;
 }
 if ($reqUser === 'auth') {

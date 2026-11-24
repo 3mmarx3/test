@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /signup
+Disallow: /logout
+
+Sitemap: https://my-tap.online/sitemap.xml

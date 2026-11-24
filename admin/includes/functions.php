@@ -317,3 +317,50 @@ if (!function_exists('generate_username')) {
         return $candidate;
     }
 }
+
+if (!function_exists('check_rate_limit')) {
+    function check_rate_limit($action, $ip = null, $maxAttempts = 5, $decay = 900) {
+        $ip = $ip ?: ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $file = sys_get_temp_dir() . '/wander_rl_' . md5($action . '_' . $ip);
+        if (!file_exists($file)) {
+            return true;
+        }
+        $raw = @file_get_contents($file);
+        $data = $raw ? json_decode($raw, true) : null;
+        if (!is_array($data) || empty($data['time']) || !isset($data['count'])) {
+            return true;
+        }
+        if (time() - (int)$data['time'] > $decay) {
+            @unlink($file);
+            return true;
+        }
+        return (int)$data['count'] < $maxAttempts;
+    }
+}
+
+if (!function_exists('record_rate_limit_failure')) {
+    function record_rate_limit_failure($action, $ip = null) {
+        $ip = $ip ?: ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $file = sys_get_temp_dir() . '/wander_rl_' . md5($action . '_' . $ip);
+        $count = 1;
+        $now = time();
+        if (file_exists($file)) {
+            $raw = @file_get_contents($file);
+            $data = $raw ? json_decode($raw, true) : null;
+            if (is_array($data) && !empty($data['time']) && ($now - (int)$data['time'] < 900)) {
+                $count = (int)($data['count'] ?? 0) + 1;
+            }
+        }
+        @file_put_contents($file, json_encode(['count' => $count, 'time' => $now]), LOCK_EX);
+    }
+}
+
+if (!function_exists('clear_rate_limit')) {
+    function clear_rate_limit($action, $ip = null) {
+        $ip = $ip ?: ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $file = sys_get_temp_dir() . '/wander_rl_' . md5($action . '_' . $ip);
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+    }
+}

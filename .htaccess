@@ -1,6 +1,12 @@
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
+RewriteRule ^robots\.txt$ robots.txt [L]
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+RewriteRule ^(\.git|config|backups) - [F,L]
+RewriteRule (^|/)(\.env|\.git|\.htaccess|.*\.sql|.*\.log|.*\.bak|.*\.md)$ - [F,L]
+
 RewriteRule ^index\.php$ - [L]
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -11,11 +17,29 @@ RewriteRule ^login/?$ admin/auth/login.php [QSA,L]
 RewriteRule ^register/?$ admin/auth/signup.php [QSA,L]
 RewriteRule ^signup/?$ admin/auth/signup.php [QSA,L]
 RewriteRule ^logout/?$ admin/auth/logout.php [QSA,L]
-RewriteRule ^dashboard/?$ admin/index.php [QSA,L]
+RewriteRule ^dashboard/?$ dashboard.php [QSA,L]
 RewriteRule ^auth/?$ admin/auth/login.php [QSA,L]
 
 RewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]
 RewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]
 </IfModule>
 
+<FilesMatch "^\.|\.(sql|env|log|bak|conf|ini|sh|md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+Options -Indexes
 ErrorDocument 404 /index.php

@@ -9,6 +9,11 @@ if (is_logged_in()) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
+    if (!check_rate_limit('login')) {
+        flash('Too many failed login attempts. Please wait 15 minutes before trying again.', 'err');
+        header('Location: ' . auth_url('login.php'));
+        exit;
+    }
     $login = trim($_POST['email'] ?? $_POST['login'] ?? '');
     $pass  = (string)($_POST['password'] ?? '');
 
@@ -20,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($u['status'] !== 'active') {
             flash('Your account is currently suspended.', 'err');
         } else {
+            clear_rate_limit('login');
             session_regenerate_id(true);
             $_SESSION['uid'] = (int)$u['id'];
             log_audit('login', 'user', (int)$u['id'], 'Signed in as @' . $u['username']);
@@ -27,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
     } else {
+        record_rate_limit_failure('login');
         flash('Invalid email, username, or password.', 'err');
     }
     header('Location: ' . auth_url('login.php'));
@@ -56,7 +63,7 @@ include dirname(__DIR__) . '/includes/header.php';
       <a href="<?= auth_url('forgot-password.php') ?>" style="text-decoration:underline">Forgot password?</a>
     </div>
     <p style="margin-top:16px;text-align:center;font-size:13px;color:var(--mut)">
-      <a href="<?= base_url('index.php') ?>" style="text-decoration:underline">Return to public site</a>
+      <a href="<?= base_url('') ?>" style="text-decoration:underline">Return to public site</a>
     </p>
   </div>
 </div>

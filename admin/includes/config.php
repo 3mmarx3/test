@@ -7,6 +7,26 @@ if (!defined('VIEW_TZ')) {
 }
 date_default_timezone_set(VIEW_TZ);
 
+if (file_exists(dirname(__DIR__, 2) . '/.env')) {
+    $envLines = @file(dirname(__DIR__, 2) . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($envLines) {
+        foreach ($envLines as $envLine) {
+            $envLine = trim($envLine);
+            if ($envLine === '' || str_starts_with($envLine, '#')) continue;
+            if (strpos($envLine, '=') !== false) {
+                [$envKey, $envVal] = explode('=', $envLine, 2);
+                $envKey = trim($envKey);
+                $envVal = trim($envVal, " \t\n\r\0\x0B\"'");
+                if (!getenv($envKey)) {
+                    putenv("{$envKey}={$envVal}");
+                    $_ENV[$envKey] = $envVal;
+                    $_SERVER[$envKey] = $envVal;
+                }
+            }
+        }
+    }
+}
+
 $isLocalEnv = (getenv('APP_ENV') === 'local' || getenv('APP_ENV') === 'development' ||
     (isset($_SERVER['HTTP_HOST']) && preg_match('/^(localhost|127\.0\.0\.1)(:\d+)?$/i', $_SERVER['HTTP_HOST'])) ||
     (strpos(str_replace('\\', '/', __DIR__), '/Applications/MAMP/') !== false));
@@ -31,11 +51,13 @@ if (!function_exists('project_base_url')) {
         if ($base !== null) {
             return $base;
         }
-        if (isset($_SERVER['DOCUMENT_ROOT']) && realpath($_SERVER['DOCUMENT_ROOT'])) {
+        if (!empty($_SERVER['DOCUMENT_ROOT']) && realpath($_SERVER['DOCUMENT_ROOT'])) {
             $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']));
             $projectDir = str_replace('\\', '/', realpath(dirname(__DIR__, 2)));
             if (str_starts_with($projectDir, $docRoot)) {
-                $base = rtrim(substr($projectDir, strlen($docRoot)), '/');
+                $sub = substr($projectDir, strlen($docRoot));
+                $base = '/' . trim($sub, '/');
+                $base = rtrim($base, '/');
                 return $base;
             }
         }
@@ -43,7 +65,8 @@ if (!function_exists('project_base_url')) {
         foreach (['/admin', '/dashboard', '/pages', '/auth', '/actions', '/includes'] as $marker) {
             $pos = strpos($scriptName, $marker);
             if ($pos !== false) {
-                $base = rtrim(substr($scriptName, 0, $pos), '/');
+                $base = '/' . trim(substr($scriptName, 0, $pos), '/');
+                $base = rtrim($base, '/');
                 return $base;
             }
         }
@@ -56,7 +79,10 @@ if (!function_exists('base_url')) {
     function base_url($path = '') {
         $base = project_base_url();
         $p = ltrim((string)$path, '/');
-        return ($base === '' ? '' : $base) . ($p === '' ? '/' : '/' . $p);
+        if ($base === '' || $base === '/') {
+            return $p === '' ? '/' : '/' . $p;
+        }
+        return '/' . trim($base, '/') . ($p === '' ? '/' : '/' . $p);
     }
 }
 
@@ -75,13 +101,16 @@ if (!function_exists('auth_url')) {
 if (!function_exists('dashboard_url')) {
     function dashboard_url($path = '') {
         $p = ltrim((string)$path, '/');
+        if (function_exists('is_admin') && function_exists('is_logged_in') && is_logged_in() && !is_admin()) {
+            return base_url('dashboard' . ($p !== '' && $p !== 'index.php' ? '/' . $p : ''));
+        }
         return admin_base_url($p === '' ? 'index.php' : $p);
     }
 }
 
 if (!function_exists('admin_url')) {
     function admin_url($path = '') {
-        return dashboard_url($path);
+        return admin_base_url($path);
     }
 }
 
@@ -117,7 +146,7 @@ if (!function_exists('user_url')) {
 if (!function_exists('full_user_url')) {
     function full_user_url($username = '') {
         $u = ltrim((string)$username, '@/');
-        return app_origin() . user_url($u);
+        return rtrim(app_origin(), '/') . user_url($u);
     }
 }
 

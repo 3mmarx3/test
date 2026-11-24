@@ -12,8 +12,19 @@ $name = '';
 $username = '';
 $email = '';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !empty($_GET['claim'])) {
+    $claimUser = strtolower(trim((string)$_GET['claim']));
+    if (is_valid_username_format($claimUser)) {
+        $username = $claimUser;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
+    if (!check_rate_limit('signup', null, 10, 900)) {
+        $errors[] = 'Too many registration requests. Please wait a few minutes before trying again.';
+    }
+
     $name = trim($_POST['name'] ?? '');
     $username = strtolower(trim($_POST['username'] ?? ''));
     $email = trim($_POST['email'] ?? '');
@@ -51,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+        clear_rate_limit('signup');
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmtIns = $pdo->prepare('INSERT INTO users (name, username, email, password_hash, role, status, handle) VALUES (?, ?, ?, ?, "user", "active", ?)');
         $stmtIns->execute([$name, $username, $email, $hash, '@' . $username]);

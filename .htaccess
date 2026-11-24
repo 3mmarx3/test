@@ -7,6 +7,13 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+RewriteRule ^login/?$ admin/auth/login.php [QSA,L]
+RewriteRule ^register/?$ admin/auth/signup.php [QSA,L]
+RewriteRule ^signup/?$ admin/auth/signup.php [QSA,L]
+RewriteRule ^logout/?$ admin/auth/logout.php [QSA,L]
+RewriteRule ^dashboard/?$ admin/index.php [QSA,L]
+RewriteRule ^auth/?$ admin/auth/login.php [QSA,L]
+
 RewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]
 RewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]
 </IfModule>

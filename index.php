@@ -1,6 +1,6 @@
 <?php
 $htPath = __DIR__ . '/.htaccess';
-$htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
+$htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^login/?$ admin/auth/login.php [QSA,L]\nRewriteRule ^register/?$ admin/auth/signup.php [QSA,L]\nRewriteRule ^signup/?$ admin/auth/signup.php [QSA,L]\nRewriteRule ^logout/?$ admin/auth/logout.php [QSA,L]\nRewriteRule ^dashboard/?$ admin/index.php [QSA,L]\nRewriteRule ^auth/?$ admin/auth/login.php [QSA,L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
 if (!file_exists($htPath) || @file_get_contents($htPath) !== $htExpected) {
     @file_put_contents($htPath, $htExpected);
 }
@@ -39,29 +39,170 @@ if ($reqUser === '') {
     $reqUser = strtolower($reqUser);
 }
 
-if ($reqUser !== '') {
-    if (is_username_reserved($reqUser)) {
-        $user = null;
-    } else {
-        $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE username = ? LIMIT 1');
-        $stmtUser->execute([$reqUser]);
-        $user = $stmtUser->fetch();
-        if (!$user) {
-            try {
-                $stmtAlias = $pdo->prepare('SELECT u.username FROM username_aliases a JOIN users u ON u.id = a.user_id WHERE a.old_username = ? LIMIT 1');
-                $stmtAlias->execute([$reqUser]);
-                $canonicalName = $stmtAlias->fetchColumn();
-                if ($canonicalName) {
-                    header('Location: ' . user_url($canonicalName), true, 301);
-                    exit;
-                }
-            } catch (Throwable $e) {}
-        }
+if ($reqUser === 'login') {
+    include __DIR__ . '/admin/auth/login.php';
+    exit;
+}
+if ($reqUser === 'register' || $reqUser === 'signup') {
+    include __DIR__ . '/admin/auth/signup.php';
+    exit;
+}
+if ($reqUser === 'logout') {
+    include __DIR__ . '/admin/auth/logout.php';
+    exit;
+}
+if ($reqUser === 'dashboard') {
+    include __DIR__ . '/admin/index.php';
+    exit;
+}
+if ($reqUser === 'auth') {
+    include __DIR__ . '/admin/auth/login.php';
+    exit;
+}
+
+if ($reqUser === '') {
+    if (is_logged_in()) {
+        header('Location: ' . dashboard_url('index.php'));
+        exit;
     }
+    http_response_code(200);
+    $pageTitle = 'Wander — Choose your destination';
+    $metaDesc = 'Claim your unique username. Share all your destinations, social channels, and portfolio with one unified link.';
+    $canonicalUrl = app_origin() . base_url('');
+    ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title><?= e($pageTitle) ?></title>
+<meta name="description" content="<?= e($metaDesc) ?>">
+<link rel="canonical" href="<?= e($canonicalUrl) ?>">
+<meta property="og:type" content="website">
+<meta property="og:title" content="<?= e($pageTitle) ?>">
+<meta property="og:description" content="<?= e($metaDesc) ?>">
+<meta property="og:url" content="<?= e($canonicalUrl) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= e($pageTitle) ?>">
+<meta name="twitter:description" content="<?= e($metaDesc) ?>">
+<meta name="theme-color" content="#22262d">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
+<style>
+  .hero-wrap{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;padding:0 clamp(16px,4vw,40px);position:relative;overflow:hidden}
+  .nav-bar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;width:100%;max-width:1180px;margin:0 auto}
+  .hero-brand{font-family:var(--serif);font-size:34px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px}
+  .hero-brand small{font:500 11px var(--sans);color:var(--mut);letter-spacing:.14em;text-transform:uppercase}
+  .hero-nav{display:flex;align-items:center;gap:12px}
+  .hero-main{width:100%;max-width:760px;margin:auto;text-align:center;padding:40px 0 60px}
+  .hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:#ffffff14;border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--a1);margin-bottom:20px}
+  .hero-title{font-family:var(--serif);font-size:clamp(38px,7.5vw,72px);font-weight:400;letter-spacing:-.025em;line-height:1.02;margin-bottom:18px}
+  .hero-sub{font-size:clamp(15px,2vw,18px);color:var(--mut);line-height:1.55;max-width:540px;margin:0 auto 32px}
+  .claim-box{display:flex;align-items:center;background:#00000040;border:1px solid #ffffff26;border-radius:999px;padding:6px 6px 6px 18px;max-width:480px;margin:0 auto 28px;box-shadow:0 12px 36px #0004}
+  .claim-prefix{color:var(--mut);font-size:14px;white-space:nowrap;user-select:none}
+  .claim-input{background:transparent;border:0;color:#fff;font-size:15px;padding:8px;flex:1;min-width:0;outline:none}
+  .claim-btn{background:#fff;color:#1b1f26;border-radius:999px;padding:12px 22px;font-weight:600;font-size:14px;white-space:nowrap;transition:opacity .15s}
+  .claim-btn:hover{opacity:.92}
+  .hero-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+  .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1180px;width:100%;margin:0 auto 40px}
+  .feat-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);text-align:left}
+  .feat-icon{width:42px;height:42px;border-radius:12px;background:#ffffff14;display:grid;place-items:center;margin-bottom:16px;font-size:18px;color:var(--a1)}
+  .feat-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+  .feat-card p{color:var(--mut);font-size:13.5px;line-height:1.5}
+  .hero-footer{padding:24px 0;border-top:1px solid var(--line);width:100%;max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mut);flex-wrap:wrap;gap:12px}
+  .footer-links{display:flex;gap:18px}
+  .footer-links a:hover{color:#fff;text-decoration:underline}
+  @media(max-width:768px){
+    .hero-grid{grid-template-columns:1fr;gap:12px}
+    .hero-footer{flex-direction:column;text-align:center}
+    .claim-box{flex-direction:column;border-radius:20px;padding:12px;gap:10px}
+    .claim-prefix{align-self:flex-start}
+    .claim-input{width:100%}
+    .claim-btn{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="hero-wrap">
+  <nav class="nav-bar">
+    <div class="hero-brand">
+      Wander <small>MY-TAP</small>
+    </div>
+    <div class="hero-nav">
+      <a href="<?= e(login_url()) ?>" class="btn g s">Sign In</a>
+      <a href="<?= e(register_url()) ?>" class="btn s">Create Page</a>
+    </div>
+  </nav>
+
+  <main class="hero-main">
+    <div class="hero-pill">
+      <span>✦</span> The Destination Layer for Your Social Presence
+    </div>
+    <h1 class="hero-title">All your destinations, in one single tap.</h1>
+    <p class="hero-sub">Claim your unique root-level username. Unify your social links, portfolio, and creative content with a single link.</p>
+
+    <form class="claim-box" action="<?= e(register_url()) ?>" method="get">
+      <span class="claim-prefix"><?= e(app_origin() . base_url('')) ?></span>
+      <input type="text" name="username" class="claim-input" placeholder="your-name" pattern="[a-zA-Z0-9-]+" autocomplete="off" spellcheck="false" required>
+      <button type="submit" class="claim-btn">Claim Username</button>
+    </form>
+
+    <div class="hero-actions">
+      <a href="<?= e(register_url()) ?>" class="btn">Get Started — Free</a>
+      <a href="<?= e(login_url()) ?>" class="btn g">Sign In to Account</a>
+    </div>
+  </main>
+
+  <section class="hero-grid">
+    <div class="feat-card">
+      <div class="feat-icon">⚡</div>
+      <h3>Direct Root Profiles</h3>
+      <p>Clean, memorable URLs like <code><?= e(app_origin() . base_url('your-name')) ?></code> without clutter, subdomains, or directory prefixes.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🎯</div>
+      <h3>Interactive Destinations</h3>
+      <p>A destination dial and profile card that displays your bio, photos, and destinations in seconds.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Real-time Analytics</h3>
+      <p>Track unique visitors, click-through rates, and destination engagement with built-in dashboard analytics.</p>
+    </div>
+  </section>
+
+  <footer class="hero-footer">
+    <div>&copy; <?= date('Y') ?> Wander / MY-TAP. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="<?= e(login_url()) ?>">Sign In</a>
+      <a href="<?= e(register_url()) ?>">Create Account</a>
+      <a href="<?= e(admin_base_url()) ?>">Admin</a>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
+    <?php
+    exit;
+}
+
+if (is_username_reserved($reqUser)) {
+    $user = null;
 } else {
-    $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE status = "active" ORDER BY id LIMIT 1');
-    $stmtUser->execute();
+    $stmtUser = $pdo->prepare('SELECT id, name, username, handle, bio, photo, status FROM users WHERE username = ? LIMIT 1');
+    $stmtUser->execute([$reqUser]);
     $user = $stmtUser->fetch();
+    if (!$user) {
+        try {
+            $stmtAlias = $pdo->prepare('SELECT u.username FROM username_aliases a JOIN users u ON u.id = a.user_id WHERE a.old_username = ? LIMIT 1');
+            $stmtAlias->execute([$reqUser]);
+            $canonicalName = $stmtAlias->fetchColumn();
+            if ($canonicalName) {
+                header('Location: ' . user_url($canonicalName), true, 301);
+                exit;
+            }
+        } catch (Throwable $e) {}
+    }
 }
 
 if (!$user || $user['status'] !== 'active') {

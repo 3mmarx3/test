@@ -91,7 +91,7 @@ try {
     }
 
     $htFile = dirname(__DIR__, 2) . '/.htaccess';
-    $htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
+    $htExpected = "<IfModule mod_rewrite.c>\nRewriteEngine On\n\nRewriteRule ^index\\.php$ - [L]\n\nRewriteCond %{REQUEST_FILENAME} -f [OR]\nRewriteCond %{REQUEST_FILENAME} -d\nRewriteRule ^ - [L]\n\nRewriteRule ^login/?$ admin/auth/login.php [QSA,L]\nRewriteRule ^register/?$ admin/auth/signup.php [QSA,L]\nRewriteRule ^signup/?$ admin/auth/signup.php [QSA,L]\nRewriteRule ^logout/?$ admin/auth/logout.php [QSA,L]\nRewriteRule ^dashboard/?$ admin/index.php [QSA,L]\nRewriteRule ^auth/?$ admin/auth/login.php [QSA,L]\n\nRewriteRule ^u/([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\nRewriteRule ^([a-zA-Z0-9-]+)/?$ index.php?username=$1 [QSA,L]\n</IfModule>\n\nErrorDocument 404 /index.php\n";
     if (!file_exists($htFile) || @file_get_contents($htFile) !== $htExpected) {
         @file_put_contents($htFile, $htExpected);
     }

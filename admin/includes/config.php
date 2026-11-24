@@ -142,3 +142,15 @@ if (!function_exists('upload_url')) {
         return admin_base_url('uploads/' . $p);
     }
 }
+
+if (!function_exists('login_url')) {
+    function login_url() {
+        return base_url('login');
+    }
+}
+
+if (!function_exists('register_url')) {
+    function register_url() {
+        return base_url('register');
+    }
+}
